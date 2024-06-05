@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/adobromilskiy/pingatus/database"
 	"github.com/adobromilskiy/pingatus/pinger"
 )
 
@@ -26,6 +27,12 @@ func main() {
 		fmt.Println("interrupt signal")
 		cancel()
 	}()
+
+	_, err := database.GetMongoClient(ctx, "mongodb://localhost:27017", false)
+	if err != nil {
+		fmt.Println("Failed to connect to MongoDB:", err)
+		os.Exit(1)
+	}
 
 	pinger := pinger.NewHttpPinger("https://twst.dev", 200, time.Second, time.Second*2)
 	pinger.Do(ctx)
