@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
 	"time"
 
-	"github.com/adobromilskiy/pingatus/database"
+	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/pinger"
 )
 
@@ -28,11 +29,17 @@ func main() {
 		cancel()
 	}()
 
-	_, err := database.GetMongoClient(ctx, "mongodb://localhost:27017", false)
+	// _, err := database.GetMongoClient(ctx, "mongodb://localhost:27017", false)
+	// if err != nil {
+	// 	fmt.Println("Failed to connect to MongoDB:", err)
+	// 	os.Exit(1)
+	// }
+
+	cfg, err := config.Load()
 	if err != nil {
-		fmt.Println("Failed to connect to MongoDB:", err)
-		os.Exit(1)
+		fmt.Println("Failed to load config:", err)
 	}
+	log.Println(cfg)
 
 	pinger := pinger.NewHttpPinger("https://twst.dev", 200, time.Second, time.Second*2)
 	pinger.Do(ctx)

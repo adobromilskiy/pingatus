@@ -2,7 +2,10 @@ module github.com/adobromilskiy/pingatus
 
 go 1.22.3
 
-require go.mongodb.org/mongo-driver v1.15.0
+require (
+	go.mongodb.org/mongo-driver v1.15.0
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect

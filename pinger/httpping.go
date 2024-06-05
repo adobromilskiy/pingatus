@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/adobromilskiy/pingatus/config"
 )
 
 type HttpPinger struct {
@@ -23,6 +25,9 @@ func NewHttpPinger(url string, httpStatus int, timeout, interval time.Duration) 
 }
 
 func (p *HttpPinger) Do(ctx context.Context) {
+	if _, err := config.Load(); err != nil {
+		fmt.Println("Failed to load config:", err)
+	}
 	ticker := time.NewTicker(p.Interval)
 	for {
 		select {
