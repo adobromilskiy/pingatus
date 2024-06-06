@@ -21,7 +21,7 @@ services:
     ports:
       - 80:80
     environment:
-      - CONFIG_PATH=/config.yaml
+      - PINGATUS_CONFIG_PATH=/config.yaml
     volumes:
       - ./config.yaml:/config.yaml
 
