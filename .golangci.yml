@@ -1,7 +1,9 @@
+issues:
+  exclude-dirs:
+    - vendor
+
 run:
   tests: false
-  skip-dirs:
-    - vendor
 
 linters:
   enable:
@@ -10,7 +12,8 @@ linters:
     - gocyclo
     - govet
     - ineffassign
-    - megacheck
+    - gosimple
+    - staticcheck
     - revive
     - typecheck
     - unconvert

@@ -23,7 +23,7 @@ func (p *Pinger) Do(ctx context.Context) {
 		wg.Add(1)
 		go func(p *config.HTTPpointConfig) {
 			defer wg.Done()
-			NewHttpPinger(p).Do(ctx)
+			NewHTTPPinger(p).Do(ctx)
 		}(&httpPoint)
 	}
 	wg.Wait()
