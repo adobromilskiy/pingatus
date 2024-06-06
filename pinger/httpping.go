@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"github.com/adobromilskiy/pingatus/storage"
 )
 
 type HttpPinger struct {
@@ -19,33 +20,53 @@ func NewHttpPinger(cfg *config.HTTPpointConfig) *HttpPinger {
 
 func (p *HttpPinger) Do(ctx context.Context) {
 	ticker := time.NewTicker(p.Cfg.Interval)
+	store, err := storage.GetMongoClient()
+	if err != nil {
+		log.Printf("[ERROR] HttpPinger %s: error getting mongo client: %v", p.Cfg.Name, err)
+		return
+	}
 	for {
 		select {
 		case <-ctx.Done():
 			log.Printf("[INFO] HttpPinger %s: stoped via context", p.Cfg.Name)
 			return
 		case <-ticker.C:
-			p.ping()
+			endpoint, err := p.ping()
+			if err != nil {
+				log.Printf("[ERROR] HttpPinger %s: error pinging: %v", p.Cfg.Name, err)
+				continue
+			}
+			err = store.SaveEndpoint(ctx, endpoint)
+			if err != nil {
+				log.Printf("[ERROR] HttpPinger %s: error save endpoint: %v", p.Cfg.Name, err)
+			}
 		}
 	}
 }
 
-func (p *HttpPinger) ping() {
+func (p *HttpPinger) ping() (*storage.Endpoint, error) {
 	client := &http.Client{
 		Timeout: p.Cfg.Timeout,
 	}
 	req, err := http.NewRequest("GET", p.Cfg.URL, nil)
 	if err != nil {
-		log.Printf("[ERROR] HttpPinger %s: error creating request: %v", p.Cfg.Name, err)
-		return
+		return nil, err
+	}
+
+	endpoint := storage.Endpoint{
+		Name: p.Cfg.Name,
+		Url:  p.Cfg.URL,
+		Date: time.Now().Unix(),
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("[ERROR] HttpPinger %s: error sending request: %v", p.Cfg.Name, err)
-		return
+		endpoint.Status = false
+		return &endpoint, nil
 	}
 	defer resp.Body.Close()
 
-	log.Printf("HttpPinger %s: received response: %d\n", p.Cfg.Name, resp.StatusCode)
+	endpoint.Status = resp.StatusCode == p.Cfg.Status
+
+	return &endpoint, nil
 }

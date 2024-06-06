@@ -7,5 +7,5 @@ type Endpoint struct {
 	Name   string             `json:"name" bson:"name"`
 	Url    string             `json:"url" bson:"url"`
 	Status bool               `json:"status" bson:"status"`
-	Date   uint64             `json:"date" bson:"date"`
+	Date   int64              `json:"date" bson:"date"`
 }

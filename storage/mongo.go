@@ -14,6 +14,7 @@ import (
 
 type Store struct {
 	Client *mongo.Client
+	DBName string
 }
 
 var (
@@ -67,10 +68,10 @@ func GetMongoClient() (*Store, error) {
 			return
 		}
 
-		client.Database(cs.Database)
-
-		store = new(Store)
-		store.Client = client
+		store = &Store{
+			Client: client,
+			DBName: cs.Database,
+		}
 
 		log.Println("[INFO] connected to MongoDB!")
 	})
@@ -85,4 +86,10 @@ func (s *Store) Close() {
 		}
 		log.Println("[INFO] disconnected from MongoDB!")
 	}
+}
+
+func (s *Store) SaveEndpoint(ctx context.Context, endpoint *Endpoint) error {
+	collection := s.Client.Database(s.DBName).Collection("endpoints")
+	_, err := collection.InsertOne(ctx, endpoint)
+	return err
 }
