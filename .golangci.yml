@@ -1,0 +1,18 @@
+run:
+  tests: false
+  skip-dirs:
+    - vendor
+
+linters:
+  enable:
+    - dupl
+    - errchkjson
+    - gocyclo
+    - govet
+    - ineffassign
+    - megacheck
+    - revive
+    - typecheck
+    - unconvert
+    - unparam
+  disable-all: true
