@@ -3,12 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
-	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/pinger"
@@ -39,9 +37,8 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to load config:", err)
 	}
-	log.Println(cfg)
 
-	pinger := pinger.NewHttpPinger("https://twst.dev", 200, time.Second, time.Second*2)
+	pinger := pinger.NewPinger(cfg)
 	pinger.Do(ctx)
 	fmt.Println("App finished.")
 }

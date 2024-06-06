@@ -1,3 +1,16 @@
-mongouri: mongodb://localhost:27017
+mongouri: mongodb://localhost:27017/crm?timeoutMS=5000
 
 debug: true
+
+httppoint:
+  - name: home
+    url: https://twst.dev
+    status: 200
+    timeout: 3s
+    interval: 6s
+
+  - name: home2
+    url: https://twst.dev
+    status: 200
+    timeout: 3s
+    interval: 5s

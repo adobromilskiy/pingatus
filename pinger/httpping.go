@@ -9,33 +9,22 @@ import (
 )
 
 type HttpPinger struct {
-	Url        string
-	HttpStatus int
-	Timeout    time.Duration
-	Interval   time.Duration
+	Cfg *config.HTTPpointConfig
 }
 
-func NewHttpPinger(url string, httpStatus int, timeout, interval time.Duration) *HttpPinger {
-	return &HttpPinger{
-		Url:        url,
-		HttpStatus: httpStatus,
-		Timeout:    timeout,
-		Interval:   interval,
-	}
+func NewHttpPinger(cfg *config.HTTPpointConfig) *HttpPinger {
+	return &HttpPinger{cfg}
 }
 
 func (p *HttpPinger) Do(ctx context.Context) {
-	if _, err := config.Load(); err != nil {
-		fmt.Println("Failed to load config:", err)
-	}
-	ticker := time.NewTicker(p.Interval)
+	ticker := time.NewTicker(p.Cfg.Interval)
 	for {
 		select {
 		case <-ctx.Done():
 			fmt.Println("HttpPinger: context is done")
 			return
 		case <-ticker.C:
-			fmt.Println("HttpPinger: tick")
+			fmt.Println("HttpPinger: tick", p.Cfg.Name)
 		}
 	}
 }

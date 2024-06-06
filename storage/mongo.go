@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/adobromilskiy/pingatus/config"
 	"go.mongodb.org/mongo-driver/event"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,18 +19,23 @@ var (
 	mongoOnce   sync.Once
 )
 
-func GetMongoClient(ctx context.Context, uri string, debug bool) (*mongo.Client, error) {
+func GetMongoClient() (*mongo.Client, error) {
 	mongoOnce.Do(func() {
-		cs, err := connstring.ParseAndValidate(uri)
+		cfg, err := config.Load()
+		if err != nil {
+			mongoError = err
+			return
+		}
+		cs, err := connstring.ParseAndValidate(cfg.MongoURI)
 		if err != nil {
 			mongoError = err
 			return
 		}
 
 		mongoopts := options.Client()
-		mongoopts.ApplyURI(uri)
+		mongoopts.ApplyURI(cfg.MongoURI)
 
-		if debug {
+		if cfg.Debug {
 			monitor := &event.CommandMonitor{
 				Started: func(_ context.Context, event *event.CommandStartedEvent) {
 					log.Println("[DEBUG] Started:", event.CommandName, event.RequestID, event.ConnectionID, event.Command)
@@ -43,6 +49,8 @@ func GetMongoClient(ctx context.Context, uri string, debug bool) (*mongo.Client,
 			}
 			mongoopts.SetMonitor(monitor)
 		}
+
+		ctx := context.Background()
 
 		client, err := mongo.Connect(ctx, mongoopts)
 		if err != nil {
