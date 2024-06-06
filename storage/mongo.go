@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"sync"
 
@@ -13,13 +12,17 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 )
 
+type Store struct {
+	Client *mongo.Client
+}
+
 var (
-	mongoClient *mongo.Client
-	mongoError  error
-	mongoOnce   sync.Once
+	store      *Store
+	mongoError error
+	mongoOnce  sync.Once
 )
 
-func GetMongoClient() (*mongo.Client, error) {
+func GetMongoClient() (*Store, error) {
 	mongoOnce.Do(func() {
 		cfg, err := config.Load()
 		if err != nil {
@@ -64,12 +67,22 @@ func GetMongoClient() (*mongo.Client, error) {
 			return
 		}
 
-		fmt.Println("Connected to MongoDB!")
-
 		client.Database(cs.Database)
 
-		mongoClient = client
+		store = new(Store)
+		store.Client = client
+
+		log.Println("[INFO] connected to MongoDB!")
 	})
 
-	return mongoClient, mongoError
+	return store, mongoError
+}
+
+func (s *Store) Close() {
+	if s.Client != nil {
+		if err := s.Client.Disconnect(context.Background()); err != nil {
+			log.Println("[ERROR] disconnecting from MongoDB:", err)
+		}
+		log.Println("[INFO] disconnected from MongoDB!")
+	}
 }

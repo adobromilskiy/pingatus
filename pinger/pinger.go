@@ -2,6 +2,7 @@ package pinger
 
 import (
 	"context"
+	"log"
 	"sync"
 
 	"github.com/adobromilskiy/pingatus/config"
@@ -26,4 +27,5 @@ func (p *Pinger) Do(ctx context.Context) {
 		}(&httpPoint)
 	}
 	wg.Wait()
+	log.Println("[INFO] all pings finished")
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -17,7 +18,7 @@ type Config struct {
 
 type HTTPpointConfig struct {
 	Name     string        `yaml:"name"`
-	Url      string        `yaml:"url"`
+	URL      string        `yaml:"url"`
 	Status   int           `yaml:"status"`
 	Timeout  time.Duration `yaml:"timeout"`
 	Interval time.Duration `yaml:"interval"`
@@ -31,9 +32,9 @@ var (
 
 func Load() (*Config, error) {
 	configOnce.Do(func() {
-		configPath := os.Getenv("CONFIG_PATH")
+		configPath := os.Getenv("PINGATUS_CONFIG_PATH")
 		if len(configPath) == 0 {
-			configError = fmt.Errorf("CONFIG_PATH is not set")
+			configError = fmt.Errorf("PINGATUS_CONFIG_PATH is not set")
 			return
 		}
 
@@ -49,7 +50,7 @@ func Load() (*Config, error) {
 			return
 		}
 
-		fmt.Println("Config loaded.")
+		log.Println("[INFO] config loaded")
 	})
 
 	return config, configError

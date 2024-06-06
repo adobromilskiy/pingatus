@@ -13,17 +13,17 @@ services:
     volumes:
       - mongodata:/data/db
 
-  app:
-    image: pingatus:latest
-    restart: always
-    networks:
-      - mynet
-    ports:
-      - 80:80
-    environment:
-      - PINGATUS_CONFIG_PATH=/config.yaml
-    volumes:
-      - ./config.yaml:/config.yaml
+  # app:
+  #   image: pingatus:latest
+  #   restart: always
+  #   networks:
+  #     - mynet
+  #   ports:
+  #     - 80:80
+  #   environment:
+  #     - PINGATUS_CONFIG_PATH=/config.yaml
+  #   volumes:
+  #     - ./config.yaml:/config.yaml
 
 volumes:
   mongodata:

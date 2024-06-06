@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -10,10 +11,11 @@ import (
 
 	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/pinger"
+	"github.com/adobromilskiy/pingatus/storage"
 )
 
 func init() {
-	fmt.Printf("App launched.\nGOOS: %s, GOARCH: %s, GOVERSION: %s\n", runtime.GOOS, runtime.GOARCH, runtime.Version())
+	log.Printf("[INFO] App launched: %s, %s, %s\n", runtime.GOOS, runtime.GOARCH, runtime.Version())
 }
 
 func main() {
@@ -23,22 +25,23 @@ func main() {
 		stop := make(chan os.Signal, 1)
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 		<-stop
-		fmt.Println("interrupt signal")
+		fmt.Println("interrupt signal!")
+		store, err := storage.GetMongoClient()
+		if err != nil {
+			log.Println("[ERROR] failed to get mongo client:", err)
+			return
+		}
+		store.Close()
 		cancel()
 	}()
 
-	// _, err := database.GetMongoClient(ctx, "mongodb://localhost:27017", false)
-	// if err != nil {
-	// 	fmt.Println("Failed to connect to MongoDB:", err)
-	// 	os.Exit(1)
-	// }
-
 	cfg, err := config.Load()
 	if err != nil {
-		fmt.Println("Failed to load config:", err)
+		log.Println("[ERROR] failed to load config:", err)
+		return
 	}
 
 	pinger := pinger.NewPinger(cfg)
 	pinger.Do(ctx)
-	fmt.Println("App finished.")
+	log.Println("[INFO] app finished.")
 }
