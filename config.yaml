@@ -2,6 +2,9 @@ mongouri: mongodb://localhost:27017/pingatus?timeoutMS=5000
 
 debug: true
 
+webapi:
+  listenaddr: :8080
+
 httppoint:
   - name: home
     url: https://twst.dev

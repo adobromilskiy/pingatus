@@ -14,6 +14,7 @@ type Config struct {
 	Debug     bool              `yaml:"debug,omitempty"`
 	MongoURI  string            `yaml:"mongouri"`
 	HTTPPoint []HTTPpointConfig `yaml:"httppoint,omitempty"`
+	WEBAPI    WEBAPIConfig      `yaml:"webapi"`
 }
 
 type HTTPpointConfig struct {
@@ -22,6 +23,10 @@ type HTTPpointConfig struct {
 	Status   int           `yaml:"status"`
 	Timeout  time.Duration `yaml:"timeout"`
 	Interval time.Duration `yaml:"interval"`
+}
+
+type WEBAPIConfig struct {
+	ListenAddr string `yaml:"listenaddr"`
 }
 
 var (
