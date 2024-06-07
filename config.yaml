@@ -7,7 +7,7 @@ webapi:
 
 httppoint:
   - name: home
-    url: https://twst.dev
+    url: http://195.138.72.247
     status: 200
     timeout: 3s
-    interval: 5s
+    interval: 1m

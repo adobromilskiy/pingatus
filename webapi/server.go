@@ -26,8 +26,6 @@ func (s *Server) Run(ctx context.Context) {
 		<-ctx.Done()
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Printf("[ERROR] failed to shutdown webapi server: %v", err)
-		} else {
-			log.Printf("[INFO] webapi server stopped")
 		}
 	}()
 
@@ -42,8 +40,6 @@ func (s *Server) Run(ctx context.Context) {
 
 func (s *Server) routes() http.Handler {
 	r := http.NewServeMux()
-	r.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
+	r.HandleFunc("/api/24hrstats", HandlerGet24hrStats)
 	return r
 }
