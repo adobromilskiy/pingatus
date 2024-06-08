@@ -8,15 +8,12 @@ import (
 
 type (
 	Stats struct {
-		Name   string      `json:"name"`
-		URL    string      `json:"url"`
+		Name string `json:"name"`
+		URL  string `json:"url"`
+		// Hours  []int  `json:"points"`
+		// Points []int  `json:"points"`
 		Points map[int]int `json:"points"`
 	}
-
-	// Point struct {
-	// 	Hour  int `json:"hour"`
-	// 	Score int `json:"score"`
-	// }
 )
 
 func (s *Stats) Convert(endpoints []*storage.Endpoint) {
@@ -52,4 +49,5 @@ func (s *Stats) Convert(endpoints []*storage.Endpoint) {
 	s.Name = endpoints[0].Name
 	s.URL = endpoints[0].URL
 	s.Points = stats
+
 }

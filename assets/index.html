@@ -1,0 +1,61 @@
+<html>
+<head>
+	<title>Pingatus</title>
+
+</head>
+<body>
+	<div style="width: 800px;">
+		<canvas id="acquisitions"></canvas>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		fetch('/api/24hrstats?name=home')
+			.then(response => response.json())
+			.then(data => {
+				var labels = [];
+				var chartdata = [];
+				var backgroundColor = [];
+				var borderColor = [];
+				for (let key in data.points) {
+					labels.push(key);
+					chartdata.push(data.points[key]);
+					if (data.points[key] < 50) {
+						backgroundColor.push('rgba(255, 99, 132, 0.2)');
+						borderColor.push('rgb(255, 99, 132)');
+					} else if (data.points[key] < 100) {
+						backgroundColor.push('rgba(255, 159, 64, 0.2)');
+						borderColor.push('rgb(255, 159, 64)');
+					} else {
+						backgroundColor.push('rgba(75, 192, 192, 0.2)');
+						borderColor.push('rgb(75, 192, 192)');
+					}
+				}
+
+				const chartopts = {
+					type: 'bar',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: data.name,
+							data: chartdata,
+							backgroundColor: backgroundColor,
+							borderColor: borderColor,
+							borderWidth: 1
+						}]
+					},
+					options: {
+						scales: {
+							y: {
+								beginAtZero: true
+							}
+						}
+					}
+				};
+
+				new Chart(document.getElementById('acquisitions'), {type: 'bar', data: chartopts.data});
+			});
+	</script>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ debug: true
 
 webapi:
   listenaddr: :8080
+  assetsdir: ./assets
 
 httppoint:
   - name: home

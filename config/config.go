@@ -27,6 +27,7 @@ type HTTPpointConfig struct {
 
 type WEBAPIConfig struct {
 	ListenAddr string `yaml:"listenaddr"`
+	AssetsDir  string `yaml:"assetsdir"`
 }
 
 var (
