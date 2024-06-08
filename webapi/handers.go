@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/adobromilskiy/pingatus/storage"
@@ -56,16 +55,4 @@ func HandlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responce)
-}
-
-func HandlerIndex(w http.ResponseWriter, _ *http.Request) {
-	body, err := os.ReadFile("./assets/index.html")
-	if err != nil {
-		log.Printf("[WARN] can't read styles.css: %v", err)
-		http.Error(w, "Error reading styles.css", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(body)
 }

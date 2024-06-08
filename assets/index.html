@@ -1,10 +1,11 @@
 <html>
 <head>
 	<title>Pingatus</title>
-
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-	<div style="width: 800px;">
+	<div class="container">
 		<canvas id="acquisitions"></canvas>
 	</div>
 
@@ -13,17 +14,15 @@
 		fetch('/api/24hrstats?name=home')
 			.then(response => response.json())
 			.then(data => {
-				var labels = [];
-				var chartdata = [];
+				var labels = data.hours;
+				var chartdata = data.points;
 				var backgroundColor = [];
 				var borderColor = [];
 				for (let key in data.points) {
-					labels.push(key);
-					chartdata.push(data.points[key]);
 					if (data.points[key] < 50) {
 						backgroundColor.push('rgba(255, 99, 132, 0.2)');
 						borderColor.push('rgb(255, 99, 132)');
-					} else if (data.points[key] < 100) {
+					} else if (data.points[key] < 90) {
 						backgroundColor.push('rgba(255, 159, 64, 0.2)');
 						borderColor.push('rgb(255, 159, 64)');
 					} else {
@@ -50,10 +49,10 @@
 								beginAtZero: true
 							}
 						}
-					}
+					},
 				};
 
-				new Chart(document.getElementById('acquisitions'), {type: 'bar', data: chartopts.data});
+				new Chart(document.getElementById('acquisitions'), chartopts);
 			});
 	</script>
 
