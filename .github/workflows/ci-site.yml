@@ -34,4 +34,5 @@ jobs:
             sudo tar -xzf assets.tar.gz
             sudo find ${{ secrets.PATH }}/assets -type d -exec chmod 775 {} +
             sudo find ${{ secrets.PATH }}/assets -type f -exec chmod 664 {} +
+            sudo chown -R ${{ secrets.USER }}:${{ secrets.USER }} ${{ secrets.PATH }}/assets
             sudo rm assets.tar.gz
