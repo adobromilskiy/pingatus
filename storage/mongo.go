@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/event"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -92,4 +93,24 @@ func (s *Store) SaveEndpoint(ctx context.Context, endpoint *Endpoint) error {
 	collection := s.Client.Database(s.DBName).Collection("endpoints")
 	_, err := collection.InsertOne(ctx, endpoint)
 	return err
+}
+
+func (s *Store) GetEndpoints(ctx context.Context, filter primitive.M) ([]*Endpoint, error) {
+	collection := s.Client.Database(s.DBName).Collection("endpoints")
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var endpoints []*Endpoint
+	for cursor.Next(ctx) {
+		var endpoint Endpoint
+		if err := cursor.Decode(&endpoint); err != nil {
+			return nil, err
+		}
+		endpoints = append(endpoints, &endpoint)
+	}
+
+	return endpoints, nil
 }

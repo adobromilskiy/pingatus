@@ -12,6 +12,7 @@ import (
 	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/pinger"
 	"github.com/adobromilskiy/pingatus/storage"
+	"github.com/adobromilskiy/pingatus/webapi"
 )
 
 func init() {
@@ -41,7 +42,11 @@ func main() {
 		return
 	}
 
+	server := webapi.NewServer(cfg.WEBAPI)
+	go server.Run(ctx)
+
 	pinger := pinger.NewPinger(cfg)
 	pinger.Do(ctx)
+
 	log.Println("[INFO] app finished.")
 }
