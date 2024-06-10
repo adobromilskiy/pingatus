@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/event"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -113,4 +114,15 @@ func (s *Store) GetEndpoints(ctx context.Context, filter primitive.M) ([]*Endpoi
 	}
 
 	return endpoints, nil
+}
+
+func (s *Store) GetLastEndpoint(ctx context.Context, filter primitive.M) (*Endpoint, error) {
+	collection := s.Client.Database(s.DBName).Collection("endpoints")
+	opts := options.FindOne().SetSort(bson.M{"date": -1})
+	var endpoint Endpoint
+	err := collection.FindOne(ctx, filter, opts).Decode(&endpoint)
+	if err != nil {
+		return nil, err
+	}
+	return &endpoint, nil
 }
