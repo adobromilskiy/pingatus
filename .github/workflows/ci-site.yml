@@ -7,10 +7,6 @@ on:
     paths:
       - 'assets/**'
       - './.github/workflows/ci-site.yml'
-  pull_request:
-    paths:
-      - 'assets/**'
-      - './.github/workflows/ci-site.yml'
 
 jobs:
   deploy:
