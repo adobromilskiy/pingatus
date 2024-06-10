@@ -56,3 +56,40 @@ func HandlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(responce)
 }
+
+func HandlerGetCurrentStatus(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if len(name) == 0 {
+		http.Error(w, "name is required", http.StatusBadRequest)
+		return
+	}
+
+	store, err := storage.GetMongoClient()
+	if err != nil {
+		log.Println("[ERROR] failed to get mongo client:", err)
+		http.Error(w, "failed to get mongo client", http.StatusInternalServerError)
+		return
+	}
+
+	filter := bson.M{
+		"name": name,
+	}
+
+	endpoint, err := store.GetLastEndpoint(r.Context(), filter)
+	if err != nil {
+		log.Println("[ERROR] failed to get endpoints:", err)
+		http.Error(w, "failed to get endpoints", http.StatusInternalServerError)
+		return
+	}
+
+	responce, err := json.Marshal(endpoint)
+	if err != nil {
+		log.Println("[ERROR] failed to marshal response:", err)
+		http.Error(w, "failed to marshal response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responce)
+}
