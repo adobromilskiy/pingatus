@@ -15,6 +15,7 @@ type Config struct {
 	MongoURI  string            `yaml:"mongouri"`
 	HTTPPoint []HTTPpointConfig `yaml:"httppoint,omitempty"`
 	WEBAPI    WEBAPIConfig      `yaml:"webapi"`
+	Notifier  NotifierConfig    `yaml:"notifier,omitempty"`
 }
 
 type HTTPpointConfig struct {
@@ -28,6 +29,12 @@ type HTTPpointConfig struct {
 type WEBAPIConfig struct {
 	ListenAddr string `yaml:"listenaddr"`
 	AssetsDir  string `yaml:"assetsdir"`
+}
+
+type NotifierConfig struct {
+	Type     string `yaml:"type"`
+	TgToken  string `yaml:"tgtoken,omitempty"`
+	TgChatID string `yaml:"tgchatid,omitempty"`
 }
 
 var (
