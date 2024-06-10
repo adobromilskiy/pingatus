@@ -26,6 +26,9 @@ jobs:
     - name: run linters
       run: $GITHUB_WORKSPACE/golangci-lint run ./...
 
+    - name: run tests
+      run: go test -v ./...
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
