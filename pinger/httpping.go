@@ -45,11 +45,11 @@ func (p *HTTPPinger) Do(ctx context.Context) {
 			}
 			if endpoint.Status && !p.CurrentStatus {
 				p.CurrentStatus = true
-				go notifier.Send("endpoint " + p.Cfg.Name + " is UP")
+				go notifier.Send("endpoint " + p.Cfg.Name + " is online")
 			}
 			if !endpoint.Status && p.CurrentStatus {
 				p.CurrentStatus = false
-				go notifier.Send("endpoint " + p.Cfg.Name + " is DOWN")
+				go notifier.Send("endpoint " + p.Cfg.Name + " is offline")
 			}
 			err = store.SaveEndpoint(ctx, endpoint)
 			if err != nil {
