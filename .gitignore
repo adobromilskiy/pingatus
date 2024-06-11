@@ -24,3 +24,6 @@ go.work.sum
 pingatus
 dump
 cover.html
+.DS_Store
+.env
+mycfg.yaml

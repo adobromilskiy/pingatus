@@ -7,15 +7,17 @@ import (
 	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"github.com/adobromilskiy/pingatus/notifier"
 	"github.com/adobromilskiy/pingatus/storage"
 )
 
 type HTTPPinger struct {
-	Cfg *config.HTTPpointConfig
+	Cfg           *config.HTTPpointConfig
+	CurrentStatus bool
 }
 
 func NewHTTPPinger(cfg *config.HTTPpointConfig) *HTTPPinger {
-	return &HTTPPinger{cfg}
+	return &HTTPPinger{cfg, true}
 }
 
 func (p *HTTPPinger) Do(ctx context.Context) {
@@ -23,6 +25,11 @@ func (p *HTTPPinger) Do(ctx context.Context) {
 	store, err := storage.GetMongoClient()
 	if err != nil {
 		log.Printf("[ERROR] HTTPPinger %s: error getting mongo client: %v", p.Cfg.Name, err)
+		return
+	}
+	notifier, err := notifier.Get()
+	if err != nil {
+		log.Printf("[ERROR] HTTPPinger %s: error getting notifier: %v", p.Cfg.Name, err)
 		return
 	}
 	for {
@@ -35,6 +42,14 @@ func (p *HTTPPinger) Do(ctx context.Context) {
 			if err != nil {
 				log.Printf("[ERROR] HTTPPinger %s: error pinging: %v", p.Cfg.Name, err)
 				continue
+			}
+			if endpoint.Status && !p.CurrentStatus {
+				p.CurrentStatus = true
+				go notifier.Send("endpoint " + p.Cfg.Name + " is online")
+			}
+			if !endpoint.Status && p.CurrentStatus {
+				p.CurrentStatus = false
+				go notifier.Send("endpoint " + p.Cfg.Name + " is offline")
 			}
 			err = store.SaveEndpoint(ctx, endpoint)
 			if err != nil {
