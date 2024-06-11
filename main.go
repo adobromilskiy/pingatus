@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	"github.com/adobromilskiy/pingatus/config"
-	"github.com/adobromilskiy/pingatus/notifier"
 	"github.com/adobromilskiy/pingatus/pinger"
 	"github.com/adobromilskiy/pingatus/storage"
 	"github.com/adobromilskiy/pingatus/webapi"
@@ -40,17 +39,6 @@ func main() {
 	cfg, err := config.Load()
 	if err != nil {
 		log.Println("[ERROR] failed to load config:", err)
-		return
-	}
-
-	notifier, err := notifier.Get()
-	if err != nil {
-		log.Println("[ERROR] failed to get notifier:", err)
-		return
-	}
-	err = notifier.Send("pingatus started")
-	if err != nil {
-		log.Println("[ERROR] failed to send notification:", err)
 		return
 	}
 

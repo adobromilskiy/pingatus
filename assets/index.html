@@ -9,10 +9,6 @@
 		<canvas id="acquisitions"></canvas>
 	</div>
 
-	<div class="container">
-		<h4>Electricity home status: <span id="elHomeStatus" class="">unknown</span></h4>
-	</div>
-
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script>
 		fetch('/api/24hrstats?name=home')
@@ -24,13 +20,13 @@
 				var borderColor = [];
 				for (let key in data.points) {
 					if (data.points[key] < 50) {
-						backgroundColor.push('rgba(255, 99, 132, 0.2)');
+						backgroundColor.push('rgba(255, 99, 132, 0.7)');
 						borderColor.push('rgb(255, 99, 132)');
 					} else if (data.points[key] < 90) {
-						backgroundColor.push('rgba(255, 159, 64, 0.2)');
+						backgroundColor.push('rgba(255, 159, 64, 0.7)');
 						borderColor.push('rgb(255, 159, 64)');
 					} else {
-						backgroundColor.push('rgba(75, 192, 192, 0.2)');
+						backgroundColor.push('rgba(75, 192, 192, 0.7)');
 						borderColor.push('rgb(75, 192, 192)');
 					}
 				}
@@ -57,19 +53,6 @@
 				};
 
 				new Chart(document.getElementById('acquisitions'), chartopts);
-			});
-
-		fetch('/api/currentstatus?name=home')
-			.then(response => response.json())
-			.then(data => {
-				var elHomeStatus = "yes";
-				var elHomeStatusClass = "text-success";
-				if (data.status == false) {
-					elHomeStatus = "no";
-					elHomeStatusClass = "text-danger";
-				}
-				document.getElementById('elHomeStatus').innerText = elHomeStatus;
-				document.getElementById('elHomeStatus').classList.add(elHomeStatusClass);
 			});
 	</script>
 
