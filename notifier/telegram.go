@@ -10,20 +10,20 @@ import (
 type Telegram struct {
 	Token  string
 	ChatID string
+	APIURL string
 }
 
 func NewTelegram(token, chatID string) *Telegram {
-	return &Telegram{token, chatID}
+	return &Telegram{token, chatID, fmt.Sprintf("https://api.telegram.org/bot%s", token)}
 }
 
 func (t *Telegram) Send(msg string) {
-	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", t.Token)
 	data := url.Values{
 		"chat_id": {t.ChatID},
 		"text":    {msg},
 	}
 
-	resp, err := http.PostForm(apiURL, data)
+	resp, err := http.PostForm(fmt.Sprintf("%s/sendMessage", t.APIURL), data)
 	if err != nil {
 		log.Printf("[ERROR] failed to send notificiation via telegram: %v", err)
 		return
