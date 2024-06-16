@@ -64,3 +64,20 @@ func TestPing(t *testing.T) {
 		t.Fatalf("Expected nil, got error %v", err)
 	}
 }
+
+func TestPingError(t *testing.T) {
+	cfg := &config.HTTPpointConfig{
+		Name:     "test",
+		URL:      "adsfsdf://invalid_url()!$@*(^*)",
+		Status:   http.StatusOK,
+		Interval: 1 * time.Second,
+		Timeout:  1 * time.Second,
+	}
+
+	pinger := NewHTTPPinger(cfg)
+
+	_, err := pinger.ping()
+	if err == nil {
+		t.Fatalf("Expected error")
+	}
+}
