@@ -17,12 +17,7 @@ func HandlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	store, err := storage.GetMongoClient()
-	if err != nil {
-		log.Println("[ERROR] failed to get mongo client:", err)
-		http.Error(w, "failed to get mongo client", http.StatusInternalServerError)
-		return
-	}
+	store := storage.GetMongoClient()
 
 	now := time.Now().Unix()
 	ago := now - 24*60*60
@@ -64,12 +59,7 @@ func HandlerGetCurrentStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	store, err := storage.GetMongoClient()
-	if err != nil {
-		log.Println("[ERROR] failed to get mongo client:", err)
-		http.Error(w, "failed to get mongo client", http.StatusInternalServerError)
-		return
-	}
+	store := storage.GetMongoClient()
 
 	filter := bson.M{
 		"name": name,

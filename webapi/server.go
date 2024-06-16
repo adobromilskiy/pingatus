@@ -6,14 +6,16 @@ import (
 	"net/http"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"github.com/adobromilskiy/pingatus/storage"
 )
 
 type Server struct {
 	config.WEBAPIConfig
+	Store *storage.Store
 }
 
-func NewServer(cfg config.WEBAPIConfig) *Server {
-	return &Server{cfg}
+func NewServer(cfg config.WEBAPIConfig, store *storage.Store) *Server {
+	return &Server{cfg, store}
 }
 
 func (s *Server) Run(ctx context.Context) {

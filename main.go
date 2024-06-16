@@ -21,17 +21,13 @@ func init() {
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
+	store := storage.GetMongoClient()
 
 	go func() {
 		stop := make(chan os.Signal, 1)
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 		<-stop
 		fmt.Println("interrupt signal!")
-		store, err := storage.GetMongoClient()
-		if err != nil {
-			log.Println("[ERROR] failed to get mongo client:", err)
-			return
-		}
 		store.Close()
 		cancel()
 	}()
@@ -42,7 +38,7 @@ func main() {
 		return
 	}
 
-	server := webapi.NewServer(cfg.WEBAPI)
+	server := webapi.NewServer(cfg.WEBAPI, store)
 	go server.Run(ctx)
 
 	pinger := pinger.NewPinger(cfg)

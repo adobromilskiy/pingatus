@@ -20,22 +20,19 @@ type Store struct {
 }
 
 var (
-	store      *Store
-	mongoError error
-	mongoOnce  sync.Once
+	store     *Store
+	mongoOnce sync.Once
 )
 
-func GetMongoClient() (*Store, error) {
+func GetMongoClient() *Store {
 	mongoOnce.Do(func() {
 		cfg, err := config.Load()
 		if err != nil {
-			mongoError = err
-			return
+			log.Fatalf("[ERROR] failed to load config: %v", err)
 		}
 		cs, err := connstring.ParseAndValidate(cfg.MongoURI)
 		if err != nil {
-			mongoError = err
-			return
+			log.Fatalf("[ERROR] failed to parse MongoDB URI: %v", err)
 		}
 
 		mongoopts := options.Client()
@@ -60,14 +57,12 @@ func GetMongoClient() (*Store, error) {
 
 		client, err := mongo.Connect(ctx, mongoopts)
 		if err != nil {
-			mongoError = err
-			return
+			log.Fatalf("[ERROR] failed to connect to MongoDB: %v", err)
 		}
 
 		err = client.Ping(ctx, nil)
 		if err != nil {
-			mongoError = err
-			return
+			log.Fatalf("[ERROR] failed to ping MongoDB: %v", err)
 		}
 
 		store = &Store{
@@ -78,7 +73,7 @@ func GetMongoClient() (*Store, error) {
 		log.Println("[INFO] connected to MongoDB!")
 	})
 
-	return store, mongoError
+	return store
 }
 
 func (s *Store) Close() {

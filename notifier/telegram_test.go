@@ -1,10 +1,30 @@
 package notifier
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+func TestNewTelegram(t *testing.T) {
+	token := "test-token"
+	chatID := "test-chat-id"
+	tg := NewTelegram(token, chatID)
+
+	if tg.Token != token {
+		t.Errorf("wrong Token: got %v, want %v", tg.Token, token)
+	}
+
+	if tg.ChatID != chatID {
+		t.Errorf("wrong ChatID: got %v, want %v", tg.ChatID, chatID)
+	}
+
+	expectedAPIURL := fmt.Sprintf("https://api.telegram.org/bot%s", token)
+	if tg.APIURL != expectedAPIURL {
+		t.Errorf("wrong APIURL: got %v, want %v", tg.APIURL, expectedAPIURL)
+	}
+}
 
 func TestTelegramSend(t *testing.T) {
 	tg := &Telegram{
@@ -33,7 +53,6 @@ func TestTelegramSend(t *testing.T) {
 	}))
 	defer server.Close()
 
-	// tg.apiURL = server.URL + "/botmock-token/sendMessage"
 	tg.APIURL = server.URL + "/botmock-token"
 
 	tg.Send("test message")
@@ -51,6 +70,15 @@ func TestTelegramSendError(t *testing.T) {
 	defer server.Close()
 
 	tg.APIURL = server.URL + "/botmock-token"
+
+	tg.Send("test message")
+}
+
+func TestTelegramSendErrorPostRequest(t *testing.T) {
+	tg := &Telegram{
+		Token:  "mock-token",
+		ChatID: "mock-chat-id",
+	}
 
 	tg.Send("test message")
 }

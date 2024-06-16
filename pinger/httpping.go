@@ -22,16 +22,13 @@ func NewHTTPPinger(cfg *config.HTTPpointConfig) *HTTPPinger {
 
 func (p *HTTPPinger) Do(ctx context.Context) {
 	ticker := time.NewTicker(p.Cfg.Interval)
-	store, err := storage.GetMongoClient()
-	if err != nil {
-		log.Printf("[ERROR] HTTPPinger %s: error getting mongo client: %v", p.Cfg.Name, err)
-		return
-	}
+	store := storage.GetMongoClient()
 	notifier, err := notifier.Get()
 	if err != nil {
 		log.Printf("[ERROR] HTTPPinger %s: error getting notifier: %v", p.Cfg.Name, err)
 		return
 	}
+
 	for {
 		select {
 		case <-ctx.Done():
