@@ -7,14 +7,22 @@ import (
 
 	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/storage"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Server struct {
 	config.WEBAPIConfig
-	Store *storage.Store
+	Store Storage
 }
 
-func NewServer(cfg config.WEBAPIConfig, store *storage.Store) *Server {
+type Storage interface {
+	GetLastEndpoint(ctx context.Context, filter primitive.M) (*storage.Endpoint, error)
+	GetEndpoints(ctx context.Context, filter primitive.M) ([]*storage.Endpoint, error)
+	SaveEndpoint(ctx context.Context, endpoint *storage.Endpoint) error
+	Close()
+}
+
+func NewServer(cfg config.WEBAPIConfig, store Storage) *Server {
 	return &Server{cfg, store}
 }
 
@@ -43,7 +51,7 @@ func (s *Server) Run(ctx context.Context) {
 func (s *Server) routes() http.Handler {
 	r := http.NewServeMux()
 	r.Handle("/", http.FileServer(http.Dir(s.AssetsDir)))
-	r.HandleFunc("/api/24hrstats", HandlerGet24hrStats)
-	r.HandleFunc("/api/currentstatus", HandlerGetCurrentStatus)
+	r.HandleFunc("/api/24hrstats", s.handlerGet24hrStats)
+	r.HandleFunc("/api/currentstatus", s.handlerGetCurrentStatus)
 	return r
 }

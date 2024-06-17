@@ -6,18 +6,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/adobromilskiy/pingatus/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func HandlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	if len(name) == 0 {
 		http.Error(w, "name is required", http.StatusBadRequest)
 		return
 	}
-
-	store := storage.GetMongoClient()
 
 	now := time.Now().Unix()
 	ago := now - 24*60*60
@@ -30,7 +27,7 @@ func HandlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	endpoints, err := store.GetEndpoints(r.Context(), filter)
+	endpoints, err := s.Store.GetEndpoints(r.Context(), filter)
 	if err != nil {
 		log.Println("[ERROR] failed to get endpoints:", err)
 		http.Error(w, "failed to get endpoints", http.StatusInternalServerError)
@@ -52,20 +49,18 @@ func HandlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 	w.Write(responce)
 }
 
-func HandlerGetCurrentStatus(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handlerGetCurrentStatus(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	if len(name) == 0 {
 		http.Error(w, "name is required", http.StatusBadRequest)
 		return
 	}
 
-	store := storage.GetMongoClient()
-
 	filter := bson.M{
 		"name": name,
 	}
 
-	endpoint, err := store.GetLastEndpoint(r.Context(), filter)
+	endpoint, err := s.Store.GetLastEndpoint(r.Context(), filter)
 	if err != nil {
 		log.Println("[ERROR] failed to get endpoints:", err)
 		http.Error(w, "failed to get endpoints", http.StatusInternalServerError)
