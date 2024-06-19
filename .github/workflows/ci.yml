@@ -28,12 +28,7 @@ jobs:
       run: $GITHUB_WORKSPACE/golangci-lint run ./...
 
     - name: run tests
-      run: go test -mod=vendor -covermode=count ./... -coverprofile $GITHUB_WORKSPACE/cover.out
-
-    - name: submit coverage
-      uses: shogo82148/actions-goveralls@v1
-      with:
-        path-to-profile: cover.out
+      run: go test -mod=vendor -covermode=count ./...
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3

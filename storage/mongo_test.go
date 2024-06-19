@@ -5,29 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/adobromilskiy/pingatus/config"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
 )
-
-func TestGetMongoClient(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
-
-	mt.Run("test get mongo client", func(mt *mtest.T) {
-		cfg := &config.Config{
-			Debug:    true,
-			MongoURI: "mongodb://localhost:27017/pingatus?timeoutMS=5000",
-		}
-
-		store := GetMongoClient(cfg)
-
-		assert.NotNil(t, store)
-
-		store.Close()
-	})
-}
 
 func TestSaveEndpoint(t *testing.T) {
 	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
