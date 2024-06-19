@@ -24,12 +24,8 @@ var (
 	mongoOnce sync.Once
 )
 
-func GetMongoClient() *Store {
+func GetMongoClient(cfg *config.Config) Storage {
 	mongoOnce.Do(func() {
-		cfg, err := config.Load()
-		if err != nil {
-			log.Fatalf("[ERROR] failed to load config: %v", err)
-		}
 		cs, err := connstring.ParseAndValidate(cfg.MongoURI)
 		if err != nil {
 			log.Fatalf("[ERROR] failed to parse MongoDB URI: %v", err)

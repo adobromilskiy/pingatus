@@ -18,14 +18,8 @@ var (
 	notifierOnce  sync.Once
 )
 
-func Get() (Notifier, error) {
+func Get(cfg *config.Config) (Notifier, error) {
 	notifierOnce.Do(func() {
-		cfg, err := config.Load()
-		if err != nil {
-			notifierError = err
-			return
-		}
-
 		switch cfg.Notifier.Type {
 		case "telegram":
 			if len(cfg.Notifier.TgToken) == 0 {

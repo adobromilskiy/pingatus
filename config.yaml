@@ -12,3 +12,8 @@ httppoint:
     status: 200
     timeout: 3s
     interval: 1m
+
+notifier:
+  type: telegram
+  tgtoken: telegram_bot_token
+  tgchatid: telegram_chat_id
