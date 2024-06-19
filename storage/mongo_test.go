@@ -2,14 +2,53 @@ package storage
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/adobromilskiy/pingatus/config"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
+	"gopkg.in/yaml.v3"
 )
+
+func TestGetMongoClient(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+
+	mt.Run("test get mongo client", func(mt *mtest.T) {
+		tempFile, err := os.CreateTemp("", "config")
+		if err != nil {
+			t.Fatalf("Failed to create temp file: %v", err)
+		}
+		defer os.Remove(tempFile.Name())
+
+		os.Setenv("PINGATUS_CONFIG_PATH", tempFile.Name())
+
+		expectedConfig := &config.Config{
+			Debug:    true,
+			MongoURI: "mongodb://localhost:27017/pingatus?timeoutMS=5000",
+		}
+
+		data, err := yaml.Marshal(expectedConfig)
+		if err != nil {
+			t.Fatalf("Failed to marshal expected config: %v", err)
+		}
+
+		if _, err := tempFile.Write(data); err != nil {
+			t.Fatalf("Failed to write to temp file: %v", err)
+		}
+
+		store := GetMongoClient()
+
+		assert.NotNil(t, store)
+		assert.NotNil(t, store.Client)
+		assert.Equal(t, "pingatus", store.DBName)
+
+		store.Close()
+	})
+}
 
 func TestSaveEndpoint(t *testing.T) {
 	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
