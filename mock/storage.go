@@ -39,7 +39,10 @@ func (s *StoreMock) GetEndpoints(_ context.Context, filter primitive.M) ([]*stor
 	return endpoints, nil
 }
 
-func (s *StoreMock) SaveEndpoint(_ context.Context, _ *storage.Endpoint) error {
+func (s *StoreMock) SaveEndpoint(_ context.Context, data *storage.Endpoint) error {
+	if data.Name != "test" {
+		return fmt.Errorf("test: wrong name")
+	}
 	return nil
 }
 
