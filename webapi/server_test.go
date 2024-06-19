@@ -22,7 +22,7 @@ func TestServer_Run(t *testing.T) {
 	go server.Run(ctx)
 
 	// Give the server some time to start
-	time.Sleep(1 * time.Second)
+	time.Sleep(100 * time.Millisecond)
 
 	// Make a request to the server
 	resp, err := http.Get("http://localhost:8080")

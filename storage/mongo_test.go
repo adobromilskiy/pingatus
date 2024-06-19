@@ -43,8 +43,6 @@ func TestGetMongoClient(t *testing.T) {
 		store := GetMongoClient()
 
 		assert.NotNil(t, store)
-		assert.NotNil(t, store.Client)
-		assert.Equal(t, "pingatus", store.DBName)
 
 		store.Close()
 	})

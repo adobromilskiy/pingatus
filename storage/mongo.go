@@ -24,7 +24,7 @@ var (
 	mongoOnce sync.Once
 )
 
-func GetMongoClient() *Store {
+func GetMongoClient() Storage {
 	mongoOnce.Do(func() {
 		cfg, err := config.Load()
 		if err != nil {

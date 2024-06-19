@@ -7,22 +7,14 @@ import (
 
 	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/storage"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Server struct {
 	config.WEBAPIConfig
-	Store Storage
+	Store storage.Storage
 }
 
-type Storage interface {
-	GetLastEndpoint(ctx context.Context, filter primitive.M) (*storage.Endpoint, error)
-	GetEndpoints(ctx context.Context, filter primitive.M) ([]*storage.Endpoint, error)
-	SaveEndpoint(ctx context.Context, endpoint *storage.Endpoint) error
-	Close()
-}
-
-func NewServer(cfg config.WEBAPIConfig, store Storage) *Server {
+func NewServer(cfg config.WEBAPIConfig, store storage.Storage) *Server {
 	return &Server{cfg, store}
 }
 

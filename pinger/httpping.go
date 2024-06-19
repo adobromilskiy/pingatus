@@ -14,10 +14,12 @@ import (
 type HTTPPinger struct {
 	Cfg           *config.HTTPpointConfig
 	CurrentStatus bool
+	Storage       storage.Storage
+	Notifier      notifier.Notifier
 }
 
-func NewHTTPPinger(cfg *config.HTTPpointConfig) *HTTPPinger {
-	return &HTTPPinger{cfg, true}
+func NewHTTPPinger(cfg *config.HTTPpointConfig, s storage.Storage, n notifier.Notifier) *HTTPPinger {
+	return &HTTPPinger{cfg, true, s, n}
 }
 
 func (p *HTTPPinger) Do(ctx context.Context) {

@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"github.com/adobromilskiy/pingatus/notifier"
 	"github.com/adobromilskiy/pingatus/pinger"
 	"github.com/adobromilskiy/pingatus/storage"
 	"github.com/adobromilskiy/pingatus/webapi"
@@ -41,7 +42,13 @@ func main() {
 	server := webapi.NewServer(cfg.WEBAPI, store)
 	go server.Run(ctx)
 
-	pinger := pinger.NewPinger(cfg)
+	notifier, err := notifier.Get()
+	if err != nil {
+		log.Printf("[ERROR] error inititalize notifier: %v", err)
+		return
+	}
+
+	pinger := pinger.NewPinger(cfg, store, notifier)
 	pinger.Do(ctx)
 
 	log.Println("[INFO] app finished.")

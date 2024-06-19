@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
+	"github.com/adobromilskiy/pingatus/mock"
 )
 
 func TestPing(t *testing.T) {
@@ -23,7 +24,10 @@ func TestPing(t *testing.T) {
 		Timeout:  1 * time.Second,
 	}
 
-	pinger := NewHTTPPinger(cfg)
+	store := &mock.StoreMock{}
+	notifier := &mock.NotifierMock{}
+
+	pinger := NewHTTPPinger(cfg, store, notifier)
 
 	endpoint, err := pinger.ping()
 	if err != nil {
@@ -74,7 +78,10 @@ func TestPingError(t *testing.T) {
 		Timeout:  1 * time.Second,
 	}
 
-	pinger := NewHTTPPinger(cfg)
+	store := &mock.StoreMock{}
+	notifier := &mock.NotifierMock{}
+
+	pinger := NewHTTPPinger(cfg, store, notifier)
 
 	_, err := pinger.ping()
 	if err == nil {
