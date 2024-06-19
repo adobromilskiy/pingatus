@@ -22,7 +22,14 @@ func init() {
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	store := storage.GetMongoClient()
+
+	cfg, err := config.Load()
+	if err != nil {
+		log.Println("[ERROR] failed to load config:", err)
+		os.Exit(1)
+	}
+
+	store := storage.GetMongoClient(cfg)
 
 	go func() {
 		stop := make(chan os.Signal, 1)
@@ -33,16 +40,10 @@ func main() {
 		cancel()
 	}()
 
-	cfg, err := config.Load()
-	if err != nil {
-		log.Println("[ERROR] failed to load config:", err)
-		return
-	}
-
 	server := webapi.NewServer(cfg.WEBAPI, store)
 	go server.Run(ctx)
 
-	notifier, err := notifier.Get()
+	notifier, err := notifier.Get(cfg)
 	if err != nil {
 		log.Printf("[ERROR] error inititalize notifier: %v", err)
 		return

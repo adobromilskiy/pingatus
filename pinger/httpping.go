@@ -24,12 +24,6 @@ func NewHTTPPinger(cfg *config.HTTPpointConfig, s storage.Storage, n notifier.No
 
 func (p *HTTPPinger) Do(ctx context.Context) {
 	ticker := time.NewTicker(p.Cfg.Interval)
-	store := storage.GetMongoClient()
-	notifier, err := notifier.Get()
-	if err != nil {
-		log.Printf("[ERROR] HTTPPinger %s: error getting notifier: %v", p.Cfg.Name, err)
-		return
-	}
 
 	for {
 		select {
@@ -44,13 +38,13 @@ func (p *HTTPPinger) Do(ctx context.Context) {
 			}
 			if endpoint.Status && !p.CurrentStatus {
 				p.CurrentStatus = true
-				go notifier.Send("endpoint " + p.Cfg.Name + " is online")
+				go p.Notifier.Send("endpoint " + p.Cfg.Name + " is online")
 			}
 			if !endpoint.Status && p.CurrentStatus {
 				p.CurrentStatus = false
-				go notifier.Send("endpoint " + p.Cfg.Name + " is offline")
+				go p.Notifier.Send("endpoint " + p.Cfg.Name + " is offline")
 			}
-			err = store.SaveEndpoint(ctx, endpoint)
+			err = p.Storage.SaveEndpoint(ctx, endpoint)
 			if err != nil {
 				log.Printf("[ERROR] HTTPPinger %s: error save endpoint: %v", p.Cfg.Name, err)
 			}
