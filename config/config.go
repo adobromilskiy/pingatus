@@ -68,3 +68,10 @@ func Load() (*Config, error) {
 
 	return config, configError
 }
+
+// func using only for unit tests
+func Reset() {
+	config = nil
+	configError = nil
+	configOnce = sync.Once{}
+}

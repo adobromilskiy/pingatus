@@ -86,3 +86,13 @@ func TestLoad_EmptyEnvConfigPath(t *testing.T) {
 		t.Fatalf("Expected error, got nil")
 	}
 }
+
+func TestReset(t *testing.T) {
+	configOnce = sync.Once{}
+
+	Reset()
+
+	if config != nil {
+		t.Fatalf("Expected nil, got %v", config)
+	}
+}
