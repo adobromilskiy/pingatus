@@ -65,3 +65,23 @@ func TestConvert_empty(t *testing.T) {
 		t.Errorf("Expected %v, got %v", 0, len(s.Points))
 	}
 }
+
+func TestDuration_String(t *testing.T) {
+	d := Duration(857)
+
+	if d.String() != "14:17" {
+		t.Errorf("Expected %v, got %v", "14:17", d.String())
+	}
+
+	d = Duration(0)
+
+	if d.String() != "0:0" {
+		t.Errorf("Expected %v, got %v", "0:0", d.String())
+	}
+
+	d = Duration(60)
+	if d.String() != "1:0" {
+		t.Errorf("Expected %v, got %v", "1:0", d.String())
+	}
+
+}

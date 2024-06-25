@@ -37,7 +37,22 @@ func (s *Server) handlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 	data := Stats{}
 	data.Convert(endpoints)
 
-	responce, err := json.Marshal(data)
+	var count Duration
+	for _, v := range endpoints {
+		if v.Status {
+			count++
+		}
+	}
+
+	result := struct {
+		Stats  Stats  `json:"stats"`
+		Uptime string `json:"uptime"`
+	}{
+		Stats:  data,
+		Uptime: count.String(),
+	}
+
+	responce, err := json.Marshal(result)
 	if err != nil {
 		log.Println("[ERROR] failed to marshal response:", err)
 		http.Error(w, "failed to marshal response", http.StatusInternalServerError)

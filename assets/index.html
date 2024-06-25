@@ -6,7 +6,8 @@
 </head>
 <body>
 	<div class="container">
-		<canvas id="acquisitions"></canvas>
+		<canvas id="home-chart"></canvas>
+		<div>Uptime home: <span id="home-uptime"></span></div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,15 +15,15 @@
 		fetch('/api/24hrstats?name=home')
 			.then(response => response.json())
 			.then(data => {
-				var labels = data.hours;
-				var chartdata = data.points;
+				var labels = data.stats.hours;
+				var chartdata = data.stats.points;
 				var backgroundColor = [];
 				var borderColor = [];
-				for (let key in data.points) {
-					if (data.points[key] < 50) {
+				for (let key in data.stats.points) {
+					if (data.stats.points[key] < 50) {
 						backgroundColor.push('rgba(255, 99, 132, 0.7)');
 						borderColor.push('rgb(255, 99, 132)');
-					} else if (data.points[key] < 90) {
+					} else if (data.stats.points[key] < 90) {
 						backgroundColor.push('rgba(255, 159, 64, 0.7)');
 						borderColor.push('rgb(255, 159, 64)');
 					} else {
@@ -36,7 +37,7 @@
 					data: {
 						labels: labels,
 						datasets: [{
-							label: data.name,
+							label: data.stats.name,
 							data: chartdata,
 							backgroundColor: backgroundColor,
 							borderColor: borderColor,
@@ -52,7 +53,9 @@
 					},
 				};
 
-				new Chart(document.getElementById('acquisitions'), chartopts);
+				new Chart(document.getElementById('home-chart'), chartopts);
+
+				document.getElementById('home-uptime').innerText = data.uptime;
 			});
 	</script>
 
