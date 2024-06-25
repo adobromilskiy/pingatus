@@ -75,13 +75,13 @@ func TestDuration_String(t *testing.T) {
 
 	d = Duration(0)
 
-	if d.String() != "0:0" {
-		t.Errorf("Expected %v, got %v", "0:0", d.String())
+	if d.String() != "00:00" {
+		t.Errorf("Expected %v, got %v", "00:00", d.String())
 	}
 
 	d = Duration(60)
-	if d.String() != "1:0" {
-		t.Errorf("Expected %v, got %v", "1:0", d.String())
+	if d.String() != "01:00" {
+		t.Errorf("Expected %v, got %v", "01:00", d.String())
 	}
 
 }

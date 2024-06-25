@@ -57,5 +57,18 @@ func (d Duration) String() string {
 	hour := d / 60
 	minute := d % 60
 
-	return fmt.Sprintf("%d:%d", hour, minute)
+	var result string
+	result = fmt.Sprintf("%d", hour)
+
+	if hour < 10 {
+		result = fmt.Sprintf("0%d", hour)
+	}
+
+	if minute < 10 {
+		result = fmt.Sprintf("%s:0%d", result, minute)
+	} else {
+		result = fmt.Sprintf("%s:%d", result, minute)
+	}
+
+	return result
 }

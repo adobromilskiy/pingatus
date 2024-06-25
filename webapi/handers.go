@@ -37,19 +37,19 @@ func (s *Server) handlerGet24hrStats(w http.ResponseWriter, r *http.Request) {
 	data := Stats{}
 	data.Convert(endpoints)
 
-	var count Duration
+	var total Duration
 	for _, v := range endpoints {
 		if v.Status {
-			count++
+			total++
 		}
 	}
 
 	result := struct {
-		Stats  Stats  `json:"stats"`
-		Uptime string `json:"uptime"`
+		Stats Stats  `json:"stats"`
+		Total string `json:"total"`
 	}{
-		Stats:  data,
-		Uptime: count.String(),
+		Stats: data,
+		Total: total.String(),
 	}
 
 	responce, err := json.Marshal(result)

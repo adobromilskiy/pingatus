@@ -1,5 +1,9 @@
 # PINGATUS
 
+[![build](https://github.com/adobromilskiy/pingatus/actions/workflows/ci.yml/badge.svg)](https://github.com/adobromilskiy/pingatus/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/adobromilskiy/pingatus)](https://goreportcard.com/report/github.com/adobromilskiy/pingatus)
+[![Coverage Status](https://coveralls.io/repos/github/adobromilskiy/pingatus/badge.svg?branch=main&kill_cache=1)](https://coveralls.io/github/adobromilskiy/pingatus?branch=main)
+
 Pingatus is a simple service to monitor your HTTP endpoints and notify you when it's down.
 
 ## Features

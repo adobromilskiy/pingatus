@@ -7,7 +7,7 @@
 <body>
 	<div class="container">
 		<canvas id="home-chart"></canvas>
-		<div>Uptime home: <span id="home-uptime"></span></div>
+		<div>Total online home: <span id="home-total"></span></div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -55,7 +55,7 @@
 
 				new Chart(document.getElementById('home-chart'), chartopts);
 
-				document.getElementById('home-uptime').innerText = data.uptime;
+				document.getElementById('home-total').innerText = data.total;
 			});
 	</script>
 
