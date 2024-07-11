@@ -30,11 +30,8 @@ jobs:
     - name: Run tests
       run: |
         docker run -tid --name testmongo -p 27117:27017 mongo:7.0
-        go test -mod=vendor -covermode=count ./...
+        go test -mod=vendor -covermode=count ./... -coverprofile $GITHUB_WORKSPACE/cover.out
         docker rm -f testmongo
-
-    - name: Test
-      run: go test -mod=vendor -covermode=count ./... -coverprofile $GITHUB_WORKSPACE/cover.out
 
     - name: Submit coverage
       uses: shogo82148/actions-goveralls@v1
