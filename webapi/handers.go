@@ -93,3 +93,23 @@ func (s *Server) handlerGetCurrentStatus(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 	w.Write(responce)
 }
+
+func (s *Server) handlerGetNames(w http.ResponseWriter, r *http.Request) {
+	names, err := s.Store.GetNames(r.Context())
+	if err != nil {
+		log.Println("[ERROR] failed to get names:", err)
+		http.Error(w, "failed to get names", http.StatusInternalServerError)
+		return
+	}
+
+	responce, err := json.Marshal(names)
+	if err != nil {
+		log.Println("[ERROR] failed to marshal response:", err)
+		http.Error(w, "failed to marshal response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responce)
+}

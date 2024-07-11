@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
@@ -72,9 +73,9 @@ func GetMongoClient(cfg *config.Config) Storage {
 	return store
 }
 
-func (s *Store) Close() {
+func (s *Store) Close(ctx context.Context) {
 	if s.Client != nil {
-		if err := s.Client.Disconnect(context.Background()); err != nil {
+		if err := s.Client.Disconnect(ctx); err != nil {
 			log.Println("[ERROR] disconnecting from MongoDB:", err)
 		}
 		log.Println("[INFO] disconnected from MongoDB!")
@@ -116,4 +117,22 @@ func (s *Store) GetLastEndpoint(ctx context.Context, filter primitive.M) (*Endpo
 		return nil, err
 	}
 	return &endpoint, nil
+}
+
+func (s *Store) GetNames(ctx context.Context) ([]string, error) {
+	collection := s.Client.Database(s.DBName).Collection("endpoints")
+	cursor, err := collection.Distinct(ctx, "name", bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	var names []string
+	for _, name := range cursor {
+		if nameStr, ok := name.(string); ok {
+			names = append(names, nameStr)
+		} else {
+			return nil, fmt.Errorf("unexpected type for name: %T", name)
+		}
+	}
+	return names, nil
 }

@@ -7,8 +7,9 @@ import (
 )
 
 type Storage interface {
-	GetLastEndpoint(ctx context.Context, filter primitive.M) (*Endpoint, error)
-	GetEndpoints(ctx context.Context, filter primitive.M) ([]*Endpoint, error)
-	SaveEndpoint(ctx context.Context, endpoint *Endpoint) error
-	Close()
+	GetLastEndpoint(context.Context, primitive.M) (*Endpoint, error)
+	GetEndpoints(context.Context, primitive.M) ([]*Endpoint, error)
+	SaveEndpoint(context.Context, *Endpoint) error
+	GetNames(context.Context) ([]string, error)
+	Close(context.Context)
 }
