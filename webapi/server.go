@@ -45,5 +45,6 @@ func (s *Server) routes() http.Handler {
 	r.Handle("/", http.FileServer(http.Dir(s.AssetsDir)))
 	r.HandleFunc("/api/24hrstats", s.handlerGet24hrStats)
 	r.HandleFunc("/api/currentstatus", s.handlerGetCurrentStatus)
+	r.HandleFunc("/api/endpoints", s.handlerGetNames)
 	return r
 }

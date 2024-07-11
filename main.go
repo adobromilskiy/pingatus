@@ -36,7 +36,7 @@ func main() {
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 		<-stop
 		fmt.Println("interrupt signal!")
-		store.Close()
+		store.Close(ctx)
 		cancel()
 	}()
 

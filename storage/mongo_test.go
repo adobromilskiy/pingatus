@@ -2,186 +2,159 @@ package storage
 
 import (
 	"context"
+	"log"
 	"testing"
-	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/adobromilskiy/pingatus/config"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var (
+	endpoint1 = &Endpoint{
+		Name:   "test1",
+		URL:    "http://test.com",
+		Date:   1720688860,
+		Status: true,
+	}
+
+	endpoint2 = &Endpoint{
+		Name:   "test2",
+		URL:    "http://test.com",
+		Date:   1720688865,
+		Status: true,
+	}
+
+	mongoURI = "mongodb://localhost:27117/testpingatus"
+)
+
+func TestGetMongoClient(t *testing.T) {
+	cfg := &config.Config{
+		MongoURI: mongoURI,
+		Debug:    true,
+	}
+
+	store := GetMongoClient(cfg)
+	if store == nil {
+		t.Fatalf("Failed to get MongoDB client")
+	}
+
+	store.Close(context.Background())
+}
+
 func TestSaveEndpoint(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	ctx := context.Background()
+	mongoopts := options.Client()
 
-	mt.Run("test save endpoint", func(mt *mtest.T) {
-		store := &Store{
-			Client: mt.Client,
-			DBName: mt.DB.Name(),
-		}
+	mongoopts.ApplyURI(mongoURI)
 
-		endpoint := &Endpoint{
-			Name:   "test",
-			URL:    "http://test.com",
-			Date:   time.Now().Unix(),
-			Status: true,
-		}
+	client, err := mongo.Connect(ctx, mongoopts)
+	if err != nil {
+		log.Fatalf("[ERROR] failed to connect to MongoDB: %v", err)
+	}
 
-		mt.AddMockResponses(mtest.CreateSuccessResponse())
-		err := store.SaveEndpoint(context.TODO(), endpoint)
+	store = &Store{
+		Client: client,
+		DBName: "testpingatus",
+	}
+	defer store.Close(ctx)
 
-		assert.Nil(t, err)
-	})
+	err = store.SaveEndpoint(ctx, endpoint1)
+	if err != nil {
+		t.Fatalf("Failed to save endpoint 1: %v", err)
+	}
 
+	err = store.SaveEndpoint(ctx, endpoint1)
+	if err != nil {
+		t.Fatalf("Failed to save endpoint 2: %v", err)
+	}
+
+	err = store.SaveEndpoint(ctx, endpoint2)
+	if err != nil {
+		t.Fatalf("Failed to save endpoint 3: %v", err)
+	}
 }
 
 func TestGetLastEndpoint(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	ctx := context.Background()
+	mongoopts := options.Client()
 
-	mt.Run("find one success", func(mt *mtest.T) {
-		store := &Store{
-			Client: mt.Client,
-			DBName: mt.DB.Name(),
-		}
+	mongoopts.ApplyURI(mongoURI)
 
-		filter := bson.M{}
-		expectedEndpoint := &Endpoint{
-			ID:   primitive.NewObjectID(),
-			Name: "Last Endpoint",
-			URL:  "http://last-endpoint.com",
-		}
+	client, err := mongo.Connect(ctx, mongoopts)
+	if err != nil {
+		log.Fatalf("[ERROR] failed to connect to MongoDB: %v", err)
+	}
 
-		bsonBytes, err := bson.Marshal(expectedEndpoint)
-		if err != nil {
-			t.Fatalf("Failed to marshal endpoint: %v", err)
-		}
+	store = &Store{
+		Client: client,
+		DBName: "testpingatus",
+	}
+	defer store.Close(ctx)
 
-		var doc primitive.D
-		err = bson.Unmarshal(bsonBytes, &doc)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal BSON into primitive.D: %v", err)
-		}
+	filter := bson.M{}
+	endpoint, err := store.GetLastEndpoint(ctx, filter)
+	if err != nil {
+		t.Fatalf("Failed to get last endpoint: %v", err)
+	}
 
-		firstBatch := mtest.CreateCursorResponse(1, "test.endpoints", mtest.FirstBatch, doc)
-		mt.AddMockResponses(firstBatch)
-
-		endpoint, err := store.GetLastEndpoint(context.Background(), filter)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedEndpoint.ID, endpoint.ID)
-		assert.Equal(t, expectedEndpoint.Name, endpoint.Name)
-		assert.Equal(t, expectedEndpoint.URL, endpoint.URL)
-
-		mt.AddMockResponses(mtest.CreateCommandErrorResponse(mtest.CommandError{
-			Code:    11000,
-			Message: "mock error",
-		}))
-
-		endpoint, err = store.GetLastEndpoint(context.Background(), filter)
-		assert.Error(t, err)
-		assert.Nil(t, endpoint)
-	})
-}
-
-func TestGetLastEndpoint_Error(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
-
-	mt.Run("find error", func(mt *mtest.T) {
-		store := &Store{
-			Client: mt.Client,
-			DBName: mt.DB.Name(),
-		}
-
-		filter := bson.M{}
-
-		mt.AddMockResponses(mtest.CreateCommandErrorResponse(mtest.CommandError{
-			Code:    11000,
-			Message: "mock error",
-		}))
-
-		endpoint, err := store.GetLastEndpoint(context.Background(), filter)
-		assert.Error(t, err)
-		assert.Nil(t, endpoint)
-	})
+	if endpoint.Name != endpoint2.Name {
+		t.Errorf("Last endpoint is unexpected: want %s, got %s", endpoint2.Name, endpoint.Name)
+	}
 }
 
 func TestGetEndpoints(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	ctx := context.Background()
+	mongoopts := options.Client()
 
-	mt.Run("find all success", func(mt *mtest.T) {
-		store := &Store{
-			Client: mt.Client,
-			DBName: mt.DB.Name(),
-		}
+	mongoopts.ApplyURI(mongoURI)
 
-		filter := bson.M{}
-		expectedEndpoints := []*Endpoint{
-			{
-				ID:     primitive.NewObjectID(),
-				Name:   "test",
-				URL:    "http://example1.com",
-				Status: true,
-				Date:   time.Now().Unix(),
-			},
-			{
-				ID:     primitive.NewObjectID(),
-				Name:   "test",
-				URL:    "http://example2.com",
-				Status: true,
-				Date:   time.Now().Unix(),
-			},
-		}
+	client, err := mongo.Connect(ctx, mongoopts)
+	if err != nil {
+		log.Fatalf("[ERROR] failed to connect to MongoDB: %v", err)
+	}
 
-		bsonBytes, err := bson.Marshal(expectedEndpoints[0])
-		if err != nil {
-			t.Fatalf("Failed to marshal endpoint: %v", err)
-		}
+	store = &Store{
+		Client: client,
+		DBName: "testpingatus",
+	}
+	defer store.Close(ctx)
 
-		var doc primitive.D
-		err = bson.Unmarshal(bsonBytes, &doc)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal BSON into primitive.D: %v", err)
-		}
+	filter := bson.M{}
+	endpoints, err := store.GetEndpoints(ctx, filter)
+	if err != nil {
+		t.Fatalf("Failed to get endpoints: %v", err)
+	}
 
-		bsonBytes, err = bson.Marshal(expectedEndpoints[0])
-		if err != nil {
-			t.Fatalf("Failed to marshal endpoint: %v", err)
-		}
-
-		var doc2 primitive.D
-		err = bson.Unmarshal(bsonBytes, &doc)
-		if err != nil {
-			t.Fatalf("Failed to unmarshal BSON into primitive.D: %v", err)
-		}
-
-		first := mtest.CreateCursorResponse(1, "test.endpoints", mtest.FirstBatch, doc)
-		second := mtest.CreateCursorResponse(1, "test.endpoints", mtest.NextBatch, doc2)
-		killCursors := mtest.CreateCursorResponse(0, "test.endpoints", mtest.NextBatch)
-		mt.AddMockResponses(first, second, killCursors)
-
-		endpoints, err := store.GetEndpoints(context.Background(), filter)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedEndpoints[0].Date, endpoints[0].Date)
-	})
+	if len(endpoints) != 3 {
+		t.Errorf("Endpoints count is unexpected: want 3, got %d", len(endpoints))
+	}
 }
 
-func TestGetEndpoints_Error(t *testing.T) {
-	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+func TestGetNames(t *testing.T) {
+	ctx := context.Background()
+	mongoopts := options.Client()
 
-	mt.Run("find all err", func(mt *mtest.T) {
-		store := &Store{
-			Client: mt.Client,
-			DBName: mt.DB.Name(),
-		}
+	mongoopts.ApplyURI(mongoURI)
 
-		filter := bson.M{}
+	client, err := mongo.Connect(ctx, mongoopts)
+	if err != nil {
+		log.Fatalf("[ERROR] failed to connect to MongoDB: %v", err)
+	}
 
-		mt.AddMockResponses(mtest.CreateCommandErrorResponse(mtest.CommandError{
-			Code:    11000,
-			Message: "mock error",
-		}))
+	store = &Store{
+		Client: client,
+		DBName: "testpingatus",
+	}
+	defer store.Close(ctx)
 
-		endpoints, err := store.GetEndpoints(context.Background(), filter)
-		assert.Error(t, err)
-		assert.Nil(t, endpoints)
-	})
+	names, err := store.GetNames(ctx)
+	if err != nil {
+		t.Fatalf("Failed to get endpoints: %v", err)
+	}
+
+	if len(names) != 2 {
+		t.Errorf("Endpoints count is unexpected: want 2, got %d", len(names))
+	}
 }

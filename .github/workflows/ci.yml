@@ -28,7 +28,10 @@ jobs:
       run: $GITHUB_WORKSPACE/golangci-lint run ./...
 
     - name: Run tests
-      run: go test -mod=vendor -covermode=count ./...
+      run: |
+        docker run -tid --name testmongo -p 27117:27017 mongo:7.0
+        go test -mod=vendor -covermode=count ./...
+        docker rm -f testmongo
 
     - name: Test
       run: go test -mod=vendor -covermode=count ./... -coverprofile $GITHUB_WORKSPACE/cover.out

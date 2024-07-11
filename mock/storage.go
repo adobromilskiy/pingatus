@@ -46,4 +46,8 @@ func (s *StoreMock) SaveEndpoint(_ context.Context, data *storage.Endpoint) erro
 	return nil
 }
 
-func (s *StoreMock) Close() {}
+func (s *StoreMock) GetNames(_ context.Context) ([]string, error) {
+	return []string{"test1", "test2"}, nil
+}
+
+func (s *StoreMock) Close(_ context.Context) {}

@@ -6,11 +6,10 @@
 
 Pingatus is a simple service to monitor your HTTP endpoints and notify you when it's down.
 
-## Features
+## Roadmap
 
 - Monitor TCP endpoints
 - Notify via email
-- Frontend dashboard more dynamic
 
 Setup **config.yaml** via environment variables `PINGATUS_CONFIG_PATH`.
 
