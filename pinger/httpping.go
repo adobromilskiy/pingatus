@@ -31,7 +31,7 @@ func (p *HTTPPinger) Do(ctx context.Context) {
 			log.Printf("[INFO] HTTPPinger %s: stoped via context", p.Cfg.Name)
 			return
 		case <-ticker.C:
-			endpoint, err := p.ping()
+			endpoint, err := p.Ping()
 			if err != nil {
 				log.Printf("[ERROR] HTTPPinger %s: error pinging: %v", p.Cfg.Name, err)
 				continue
@@ -52,7 +52,7 @@ func (p *HTTPPinger) Do(ctx context.Context) {
 	}
 }
 
-func (p *HTTPPinger) ping() (*storage.Endpoint, error) {
+func (p *HTTPPinger) Ping() (*storage.Endpoint, error) {
 	client := &http.Client{
 		Timeout: p.Cfg.Timeout,
 	}

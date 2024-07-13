@@ -8,9 +8,15 @@ webapi:
 
 httppoint:
   - name: home
-    url: http://195.138.72.247
+    url: https://google.com
     status: 200
     timeout: 3s
+    interval: 1m
+
+icmppoint:
+  - name: internet
+    ip: 8.8.8.8
+    packetcount: 3
     interval: 1m
 
 notifier:

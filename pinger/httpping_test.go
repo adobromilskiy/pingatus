@@ -30,7 +30,7 @@ func TestPing(t *testing.T) {
 
 	pinger := NewHTTPPinger(cfg, store, notifier)
 
-	endpoint, err := pinger.ping()
+	endpoint, err := pinger.Ping()
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -52,7 +52,7 @@ func TestPing(t *testing.T) {
 		rw.WriteHeader(http.StatusBadGateway)
 	})
 
-	endpoint, err = pinger.ping()
+	endpoint, err = pinger.Ping()
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -64,7 +64,7 @@ func TestPing(t *testing.T) {
 	// Test for a request error
 	server.Close()
 
-	_, err = pinger.ping()
+	_, err = pinger.Ping()
 	if err != nil {
 		t.Fatalf("Expected nil, got error %v", err)
 	}
@@ -84,7 +84,7 @@ func TestPingError(t *testing.T) {
 
 	pinger := NewHTTPPinger(cfg, store, notifier)
 
-	_, err := pinger.ping()
+	_, err := pinger.Ping()
 	if err == nil {
 		t.Fatalf("Expected error")
 	}

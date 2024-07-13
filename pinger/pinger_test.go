@@ -30,7 +30,7 @@ func TestPingerDo(t *testing.T) {
 	store := &mock.StoreMock{}
 	notifier := &mock.NotifierMock{}
 
-	pinger := NewPinger(cfg, store, notifier)
+	pinger := NewPingatus(cfg, store, notifier)
 
 	ctx, cancel := context.WithCancel(context.Background())
 

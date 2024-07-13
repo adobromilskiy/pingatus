@@ -14,6 +14,7 @@ type Config struct {
 	Debug     bool              `yaml:"debug,omitempty"`
 	MongoURI  string            `yaml:"mongouri"`
 	HTTPPoint []HTTPpointConfig `yaml:"httppoint,omitempty"`
+	ICMPPoint []ICMPpointConfig `yaml:"icmppoint,omitempty"`
 	WEBAPI    WEBAPIConfig      `yaml:"webapi"`
 	Notifier  NotifierConfig    `yaml:"notifier,omitempty"`
 }
@@ -24,6 +25,13 @@ type HTTPpointConfig struct {
 	Status   int           `yaml:"status"`
 	Timeout  time.Duration `yaml:"timeout"`
 	Interval time.Duration `yaml:"interval"`
+}
+
+type ICMPpointConfig struct {
+	Name        string        `yaml:"name"`
+	IP          string        `yaml:"ip"`
+	PacketCount int           `yaml:"packetcount"`
+	Interval    time.Duration `yaml:"interval"`
 }
 
 type WEBAPIConfig struct {
