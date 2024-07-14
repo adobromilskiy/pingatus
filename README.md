@@ -4,12 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/adobromilskiy/pingatus)](https://goreportcard.com/report/github.com/adobromilskiy/pingatus)
 [![Coverage Status](https://coveralls.io/repos/github/adobromilskiy/pingatus/badge.svg?branch=main&kill_cache=1)](https://coveralls.io/github/adobromilskiy/pingatus?branch=main)
 
-Pingatus is a simple service to monitor your HTTP endpoints and notify you when it's down.
-
-## Roadmap
-
-- Monitor TCP endpoints
-- Notify via email
+Pingatus is a simple service to monitor your HTTP/ICMP endpoints and notify you when it's down/up.
 
 Setup **config.yaml** via environment variables `PINGATUS_CONFIG_PATH`.
 
@@ -24,11 +19,18 @@ webapi:
   listenaddr: :8080
   assetsdir: ./assets
 
-httppoint:
+endpoints:
   - name: server1
-    url: https://yourdomain.com
+    type: http
+    address: https://yourdomain.com
     status: 200
     timeout: 3s
+    interval: 1m
+
+  - name: server2
+    type: icmp
+    address: 8.8.8.8
+    packetcount: 5
     interval: 1m
 
 notifier:

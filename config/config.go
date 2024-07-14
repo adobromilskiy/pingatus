@@ -11,19 +11,21 @@ import (
 )
 
 type Config struct {
-	Debug     bool              `yaml:"debug,omitempty"`
-	MongoURI  string            `yaml:"mongouri"`
-	HTTPPoint []HTTPpointConfig `yaml:"httppoint,omitempty"`
-	WEBAPI    WEBAPIConfig      `yaml:"webapi"`
-	Notifier  NotifierConfig    `yaml:"notifier,omitempty"`
+	Debug     bool             `yaml:"debug,omitempty"`
+	MongoURI  string           `yaml:"mongouri"`
+	EndPoints []EndpointConfig `yaml:"endpoints,omitempty"`
+	WEBAPI    WEBAPIConfig     `yaml:"webapi"`
+	Notifier  NotifierConfig   `yaml:"notifier,omitempty"`
 }
 
-type HTTPpointConfig struct {
-	Name     string        `yaml:"name"`
-	URL      string        `yaml:"url"`
-	Status   int           `yaml:"status"`
-	Timeout  time.Duration `yaml:"timeout"`
-	Interval time.Duration `yaml:"interval"`
+type EndpointConfig struct {
+	Name        string        `yaml:"name"`
+	Type        string        `yaml:"type"`
+	Address     string        `yaml:"address"`
+	Status      int           `yaml:"status"`
+	PacketCount int           `yaml:"packetcount"`
+	Timeout     time.Duration `yaml:"timeout"`
+	Interval    time.Duration `yaml:"interval"`
 }
 
 type WEBAPIConfig struct {

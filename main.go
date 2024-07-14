@@ -49,8 +49,8 @@ func main() {
 		return
 	}
 
-	pinger := pinger.NewPinger(cfg, store, notifier)
-	pinger.Do(ctx)
+	p := pinger.NewPingatus(cfg, store, notifier)
+	p.Do(ctx)
 
 	log.Println("[INFO] app finished.")
 }

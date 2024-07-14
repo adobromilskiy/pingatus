@@ -6,12 +6,19 @@ webapi:
   listenaddr: :8080
   assetsdir: ./assets
 
-httppoint:
+endpoints:
   - name: home
-    url: http://195.138.72.247
+    address: https://google.com
     status: 200
     timeout: 3s
     interval: 1m
+    type: http
+
+  - name: internet
+    address: 8.8.8.8
+    packetcount: 3
+    interval: 1m
+    type: icmp
 
 notifier:
   type: telegram
