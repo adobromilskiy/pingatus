@@ -1,65 +1,31 @@
 package pinger
 
 import (
-	"context"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
-	"github.com/adobromilskiy/pingatus/notifier"
 	"github.com/adobromilskiy/pingatus/storage"
 	"github.com/go-ping/ping"
 )
 
 type ICMPPinger struct {
-	Cfg           *config.ICMPpointConfig
-	CurrentStatus bool
-	Storage       storage.Storage
-	Notifier      notifier.Notifier
-	Pinger        *ping.Pinger
+	Cfg    *config.EndpointConfig
+	Pinger *ping.Pinger
 }
 
-func NewICMPPinger(cfg *config.ICMPpointConfig, s storage.Storage, n notifier.Notifier, p *ping.Pinger) *ICMPPinger {
+func NewICMPPinger(cfg *config.EndpointConfig, p *ping.Pinger) (*ICMPPinger, error) {
+	if cfg.PacketCount == 0 {
+		return nil, fmt.Errorf("packetcount is not set")
+	}
+
 	return &ICMPPinger{
-		Cfg:           cfg,
-		CurrentStatus: true,
-		Storage:       s,
-		Notifier:      n,
-		Pinger:        p,
-	}
+		Cfg:    cfg,
+		Pinger: p,
+	}, nil
 }
 
-func (p *ICMPPinger) Do(ctx context.Context) {
-	ticker := time.NewTicker(p.Cfg.Interval)
-
-	for {
-		select {
-		case <-ctx.Done():
-			log.Printf("[INFO] ICMPPinger %s: stoped via context", p.Cfg.Name)
-			return
-		case <-ticker.C:
-			endpoint, err := p.ping()
-			if err != nil {
-				log.Printf("[ERROR] ICMPPinger %s: error pinging: %v", p.Cfg.Name, err)
-				continue
-			}
-			if endpoint.Status && !p.CurrentStatus {
-				p.CurrentStatus = true
-				go p.Notifier.Send("endpoint " + p.Cfg.Name + " is online")
-			}
-			if !endpoint.Status && p.CurrentStatus {
-				p.CurrentStatus = false
-				go p.Notifier.Send("endpoint " + p.Cfg.Name + " is offline")
-			}
-			err = p.Storage.SaveEndpoint(ctx, endpoint)
-			if err != nil {
-				log.Printf("[ERROR] ICMPPinger %s: error save endpoint: %v", p.Cfg.Name, err)
-			}
-		}
-	}
-}
-
-func (p *ICMPPinger) ping() (*storage.Endpoint, error) {
+func (p *ICMPPinger) Ping() (*storage.Endpoint, error) {
 	p.Pinger.Count = p.Cfg.PacketCount
 	if err := p.Pinger.Run(); err != nil {
 		return nil, err
@@ -70,7 +36,7 @@ func (p *ICMPPinger) ping() (*storage.Endpoint, error) {
 
 	endpoint := storage.Endpoint{
 		Name: p.Cfg.Name,
-		URL:  p.Cfg.IP,
+		URL:  p.Cfg.Address,
 		Date: time.Now().Unix(),
 	}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
 	"github.com/adobromilskiy/pingatus/notifier"
@@ -16,37 +17,78 @@ type Pinger interface {
 }
 
 type Pingatus struct {
-	Cfg      *config.Config
-	Storage  storage.Storage
-	Notifier notifier.Notifier
+	Cfg           *config.Config
+	CurrentStatus bool
+	Storage       storage.Storage
+	Notifier      notifier.Notifier
 }
 
 func NewPingatus(cfg *config.Config, s storage.Storage, n notifier.Notifier) *Pingatus {
-	return &Pingatus{cfg, s, n}
+	return &Pingatus{cfg, true, s, n}
 }
 
 func (p *Pingatus) Do(ctx context.Context) {
 
 	var wg sync.WaitGroup
-	for _, httpPoint := range p.Cfg.HTTPPoint {
+	for _, e := range p.Cfg.EndPoints {
 		wg.Add(1)
-		go func(p *config.HTTPpointConfig, s storage.Storage, n notifier.Notifier) {
+		go func(cfg *config.EndpointConfig) {
 			defer wg.Done()
-			NewHTTPPinger(p, s, n).Do(ctx)
-		}(&httpPoint, p.Storage, p.Notifier)
-	}
-	for _, icmpPoint := range p.Cfg.ICMPPoint {
-		wg.Add(1)
-		go func(p *config.ICMPpointConfig, s storage.Storage, n notifier.Notifier) {
-			defer wg.Done()
-			pinger, err := ping.NewPinger(p.IP)
-			if err != nil {
-				log.Printf("[ERROR] ICMPPinger %s: error creating pinger: %v", p.Name, err)
-				return
+			switch cfg.Type {
+			case "http":
+				pinger, err := NewHTTPPinger(cfg)
+				if err != nil {
+					log.Printf("[ERROR] HTTPPinger %s: error creating pinger: %v", cfg.Name, err)
+					return
+				}
+				p.Run(ctx, pinger, cfg)
+			case "icmp":
+				icmppinger, err := ping.NewPinger(cfg.Address)
+				if err != nil {
+					log.Printf("[ERROR] ICMPPinger %s: error creating pinger: %v", cfg.Name, err)
+					return
+				}
+
+				pinger, err := NewICMPPinger(cfg, icmppinger)
+				if err != nil {
+					log.Printf("[ERROR] ICMPPinger %s: error creating pinger: %v", cfg.Name, err)
+					return
+				}
+
+				p.Run(ctx, pinger, cfg)
 			}
-			NewICMPPinger(p, s, n, pinger).Do(ctx)
-		}(&icmpPoint, p.Storage, p.Notifier)
+		}(&e)
 	}
 	wg.Wait()
 	log.Println("[INFO] all pings finished")
+}
+
+func (p *Pingatus) Run(ctx context.Context, pinger Pinger, cfg *config.EndpointConfig) {
+	ticker := time.NewTicker(cfg.Interval)
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("[INFO] %s pinger '%s': stoped via context", cfg.Type, cfg.Name)
+			return
+		case <-ticker.C:
+			endpoint, err := pinger.Ping()
+			if err != nil {
+				log.Printf("[ERROR] %s pinger '%s': error pinging: %v", cfg.Type, cfg.Name, err)
+				continue
+			}
+			if endpoint.Status && !p.CurrentStatus {
+				p.CurrentStatus = true
+				go p.Notifier.Send("endpoint " + cfg.Name + " is online")
+			}
+			if !endpoint.Status && p.CurrentStatus {
+				p.CurrentStatus = false
+				go p.Notifier.Send("endpoint " + cfg.Name + " is offline")
+			}
+			err = p.Storage.SaveEndpoint(ctx, endpoint)
+			if err != nil {
+				log.Printf("[ERROR] %s pinger '%s': error save endpoint: %v", cfg.Type, cfg.Name, err)
+			}
+		}
+	}
 }

@@ -1,34 +1,32 @@
 package pinger
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
-	"github.com/adobromilskiy/pingatus/mock"
 )
 
-func TestPing(t *testing.T) {
+func TestHTTPPing(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
 
-	cfg := &config.HTTPpointConfig{
+	cfg := &config.EndpointConfig{
 		Name:     "test",
-		URL:      server.URL,
+		Address:  server.URL,
 		Status:   http.StatusOK,
 		Interval: 1 * time.Second,
 		Timeout:  1 * time.Second,
 	}
 
-	store := &mock.StoreMock{}
-	notifier := &mock.NotifierMock{}
-
-	pinger := NewHTTPPinger(cfg, store, notifier)
+	pinger, err := NewHTTPPinger(cfg)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
 
 	endpoint, err := pinger.Ping()
 	if err != nil {
@@ -39,8 +37,8 @@ func TestPing(t *testing.T) {
 		t.Errorf("Expected %v, got %v", cfg.Name, endpoint.Name)
 	}
 
-	if endpoint.URL != cfg.URL {
-		t.Errorf("Expected %v, got %v", cfg.URL, endpoint.URL)
+	if endpoint.URL != cfg.Address {
+		t.Errorf("Expected %v, got %v", cfg.Address, endpoint.URL)
 	}
 
 	if endpoint.Status != true {
@@ -70,137 +68,38 @@ func TestPing(t *testing.T) {
 	}
 }
 
-func TestPingError(t *testing.T) {
-	cfg := &config.HTTPpointConfig{
+func TestHTTPPing_Error(t *testing.T) {
+	cfg := &config.EndpointConfig{
 		Name:     "test",
-		URL:      "adsfsdf://invalid_url()!$@*(^*)",
+		Address:  "adsfsdf://invalid_url()!$@*(^*)",
 		Status:   http.StatusOK,
 		Interval: 1 * time.Second,
 		Timeout:  1 * time.Second,
 	}
 
-	store := &mock.StoreMock{}
-	notifier := &mock.NotifierMock{}
+	pinger, err := NewHTTPPinger(cfg)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
 
-	pinger := NewHTTPPinger(cfg, store, notifier)
-
-	_, err := pinger.Ping()
+	_, err = pinger.Ping()
 	if err == nil {
 		t.Fatalf("Expected error")
 	}
 }
 
-func TestDo(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		rw.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	cfg := &config.HTTPpointConfig{
+func TestHTTPPing_ErrorCFG(t *testing.T) {
+	cfg := &config.EndpointConfig{
 		Name:     "test",
-		URL:      server.URL,
+		Type:     "http",
+		Address:  "http://example.com",
 		Status:   http.StatusOK,
-		Interval: 1 * time.Second,
-		Timeout:  1 * time.Second,
-	}
-	store := &mock.StoreMock{}
-	notifier := &mock.NotifierMock{}
-	pinger := NewHTTPPinger(cfg, store, notifier)
-
-	// Test if Do stops when context is done
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		time.Sleep(1 * time.Second)
-		cancel()
-	}()
-	pinger.Do(ctx)
-}
-
-func TestDoError_Status(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		rw.WriteHeader(http.StatusBadRequest)
-	}))
-	defer server.Close()
-
-	cfg := &config.HTTPpointConfig{
-		Name:     "test",
-		URL:      server.URL,
-		Status:   http.StatusOK,
-		Interval: 1 * time.Second,
-		Timeout:  1 * time.Second,
-	}
-	store := &mock.StoreMock{}
-	notifier := &mock.NotifierMock{}
-	pinger := NewHTTPPinger(cfg, store, notifier)
-
-	// Test if Do stops when context is done
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		time.Sleep(1 * time.Second)
-		cancel()
-	}()
-	pinger.Do(ctx)
-
-	server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		rw.WriteHeader(http.StatusOK)
-	})
-
-	// Test if Do stops when context is done
-	ctx, cancel = context.WithCancel(context.Background())
-	go func() {
-		time.Sleep(1 * time.Second)
-		cancel()
-	}()
-	pinger.Do(ctx)
-}
-
-func TestDoError_PingResponse(t *testing.T) {
-	cfg := &config.HTTPpointConfig{
-		Name:     "test",
-		URL:      "adsfsdf://invalid_url()!$@*(^*)",
-		Status:   http.StatusOK,
-		Interval: 1 * time.Second,
-		Timeout:  1 * time.Second,
+		Interval: 200 * time.Millisecond,
+		Timeout:  0,
 	}
 
-	store := &mock.StoreMock{}
-	notifier := &mock.NotifierMock{}
-
-	pinger := NewHTTPPinger(cfg, store, notifier)
-
-	// Test if Do stops when context is done
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		time.Sleep(1 * time.Second)
-		cancel()
-	}()
-	pinger.Do(ctx)
-}
-
-func TestDoError_SaveEndpoint(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		rw.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	cfg := &config.HTTPpointConfig{
-		Name:     "test1",
-		URL:      server.URL,
-		Status:   http.StatusOK,
-		Interval: 1 * time.Second,
-		Timeout:  1 * time.Second,
+	_, err := NewHTTPPinger(cfg)
+	if err == nil {
+		t.Fatalf("Expected error, got %v", err)
 	}
-
-	store := &mock.StoreMock{}
-	notifier := &mock.NotifierMock{}
-
-	pinger := NewHTTPPinger(cfg, store, notifier)
-
-	// Test if Do stops when context is done
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		time.Sleep(1 * time.Second)
-		cancel()
-	}()
-	pinger.Do(ctx)
 }

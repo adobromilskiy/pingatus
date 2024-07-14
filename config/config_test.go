@@ -20,10 +20,10 @@ func TestLoad(t *testing.T) {
 	expectedConfig := &Config{
 		Debug:    true,
 		MongoURI: "mongodb://localhost:27017",
-		HTTPPoint: []HTTPpointConfig{
+		EndPoints: []EndpointConfig{
 			{
 				Name:     "test",
-				URL:      "http://localhost",
+				Address:  "http://localhost",
 				Status:   200,
 				Timeout:  1,
 				Interval: 1,

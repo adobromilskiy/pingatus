@@ -1,69 +1,42 @@
 package pinger
 
 import (
-	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/adobromilskiy/pingatus/config"
-	"github.com/adobromilskiy/pingatus/notifier"
 	"github.com/adobromilskiy/pingatus/storage"
 )
 
 type HTTPPinger struct {
-	Cfg           *config.HTTPpointConfig
-	CurrentStatus bool
-	Storage       storage.Storage
-	Notifier      notifier.Notifier
+	Cfg *config.EndpointConfig
 }
 
-func NewHTTPPinger(cfg *config.HTTPpointConfig, s storage.Storage, n notifier.Notifier) *HTTPPinger {
-	return &HTTPPinger{cfg, true, s, n}
-}
-
-func (p *HTTPPinger) Do(ctx context.Context) {
-	ticker := time.NewTicker(p.Cfg.Interval)
-
-	for {
-		select {
-		case <-ctx.Done():
-			log.Printf("[INFO] HTTPPinger %s: stoped via context", p.Cfg.Name)
-			return
-		case <-ticker.C:
-			endpoint, err := p.Ping()
-			if err != nil {
-				log.Printf("[ERROR] HTTPPinger %s: error pinging: %v", p.Cfg.Name, err)
-				continue
-			}
-			if endpoint.Status && !p.CurrentStatus {
-				p.CurrentStatus = true
-				go p.Notifier.Send("endpoint " + p.Cfg.Name + " is online")
-			}
-			if !endpoint.Status && p.CurrentStatus {
-				p.CurrentStatus = false
-				go p.Notifier.Send("endpoint " + p.Cfg.Name + " is offline")
-			}
-			err = p.Storage.SaveEndpoint(ctx, endpoint)
-			if err != nil {
-				log.Printf("[ERROR] HTTPPinger %s: error save endpoint: %v", p.Cfg.Name, err)
-			}
-		}
+func NewHTTPPinger(cfg *config.EndpointConfig) (*HTTPPinger, error) {
+	if cfg.Status == 0 {
+		return nil, fmt.Errorf("status is not set")
 	}
+
+	if cfg.Timeout == 0 {
+		return nil, fmt.Errorf("timeout is not set")
+	}
+
+	return &HTTPPinger{cfg}, nil
 }
 
 func (p *HTTPPinger) Ping() (*storage.Endpoint, error) {
 	client := &http.Client{
 		Timeout: p.Cfg.Timeout,
 	}
-	req, err := http.NewRequest("GET", p.Cfg.URL, nil)
+	req, err := http.NewRequest("GET", p.Cfg.Address, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	endpoint := storage.Endpoint{
 		Name: p.Cfg.Name,
-		URL:  p.Cfg.URL,
+		URL:  p.Cfg.Address,
 		Date: time.Now().Unix(),
 	}
 
