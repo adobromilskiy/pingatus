@@ -1,11 +1,31 @@
-image:
-	docker build -t pingatus .
+.DEFAULT_GOAL := build
 
-build:
-	go build -o pingatus -mod=vendor
+export GOBIN = $(shell pwd)/bin
+export GOFLAGS = -mod=vendor -race
 
-test:
-	docker run -tid --name testmongo -p 27117:27017 mongo:7.0
-	-go test -cover -v -coverprofile cover.out ./...
-	go tool cover -html cover.out -o cover.html
-	docker rm -f testmongo
+.PHONY: fmt
+fmt:
+	@gofumpt -l -w .
+
+.PHONY: vet
+vet: fmt
+	@go vet ./...
+	@staticcheck ./...
+	@shadow ./...
+
+.PHONY: lint
+lint: vet
+	@deadcode ./...
+	@golangci-lint run ./...
+
+.PHONY: build
+build: vet
+	@go install ./cmd/... && echo "Build successful"
+
+.PHONY: test
+test: vet
+	@go test -cover -v -coverprofile cover.out ./...
+
+.PHONY: cover
+cover: test
+	@go tool cover -html cover.out

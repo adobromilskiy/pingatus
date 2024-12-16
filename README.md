@@ -37,3 +37,23 @@ notifier:
   tgtoken: <telegram-bot-token>
   tgchatid: <telegram-chat-id>
 ```
+
+## Dependencies for `make` (**optional**):
+
+```
+// make sec
+$ go install golang.org/x/vuln/cmd/govulncheck@latest
+$ go install github.com/zricethezav/gitleaks/v8@latest
+
+// make fmt
+$ go install mvdan.cc/gofumpt@latest
+
+// make vet
+$ go install honnef.co/go/tools/cmd/staticcheck@latest
+$ go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
+
+// make lint
+$ go install golang.org/x/tools/cmd/deadcode@latest
+$ curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+| sh -s -- -b $(go env GOPATH)/bin
+```
