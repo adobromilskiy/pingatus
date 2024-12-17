@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	ErrPathNotSet  = errors.New("PINGATUS_CONFIG_PATH is not set")
-	ErrReadingFile = errors.New("error reading YAML file")
-	ErrParsingFile = errors.New("error parsing YAML file")
+	ErrPathNotSet  = errors.New("config: PINGATUS_CONFIG_PATH is not set")
+	ErrReadingFile = errors.New("config: error reading yaml file")
+	ErrParsingFile = errors.New("config: error parsing yaml file")
 )
 
 type Config struct {
+	Logger    LoggerConfig     `yaml:"logger"`
 	Endpoints []EndpointConfig `yaml:"endpoints,omitempty"`
 }
 
@@ -27,6 +28,11 @@ type EndpointConfig struct {
 	PacketCount int           `yaml:"packetcount"`
 	Timeout     time.Duration `yaml:"timeout"`
 	Interval    time.Duration `yaml:"interval"`
+}
+
+type LoggerConfig struct {
+	IsJSON bool   `yaml:"json,omitempty"`
+	Level  string `yaml:"level,omitempty"`
 }
 
 func Load() (*Config, error) {
