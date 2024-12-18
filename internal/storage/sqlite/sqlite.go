@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+
+	_ "modernc.org/sqlite"
 )
 
 var (
@@ -53,4 +55,8 @@ func (s *DB) Close(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *DB) Get() *sql.DB {
+	return s.db
 }
