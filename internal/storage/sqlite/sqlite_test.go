@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"os"
 	"testing"
-
-	_ "modernc.org/sqlite"
 )
 
 // TODO: replace to mock package

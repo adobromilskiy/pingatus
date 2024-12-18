@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/adobromilskiy/pingatus/core"
-
-	_ "modernc.org/sqlite"
 )
 
 func TestNewEndpoint_Success(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"strings"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" //nolint: review
 )
 
 var (
