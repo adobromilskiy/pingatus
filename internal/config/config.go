@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	ErrPathNotSet  = errors.New("config: PINGATUS_CONFIG_PATH is not set")
-	ErrReadingFile = errors.New("config: error reading yaml file")
-	ErrParsingFile = errors.New("config: error parsing yaml file")
+	errPathNotSet  = errors.New("config: PINGATUS_CONFIG_PATH is not set")
+	errReadingFile = errors.New("config: error reading yaml file")
+	errParsingFile = errors.New("config: error parsing yaml file")
 )
 
 type Config struct {
+	DBDSN     string           `yaml:"dbdsn"`
 	Logger    LoggerConfig     `yaml:"logger"`
 	Endpoints []EndpointConfig `yaml:"endpoints,omitempty"`
 }
@@ -38,19 +39,19 @@ type LoggerConfig struct {
 func Load() (*Config, error) {
 	path := os.Getenv("PINGATUS_CONFIG_PATH")
 	if len(path) == 0 {
-		return nil, ErrPathNotSet
+		return nil, errPathNotSet
 	}
 
 	bts, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrReadingFile, err)
+		return nil, fmt.Errorf("%w: %w", errReadingFile, err)
 	}
 
 	var cfg Config
 
 	err = yaml.Unmarshal(bts, &cfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrParsingFile, err)
+		return nil, fmt.Errorf("%w: %w", errParsingFile, err)
 	}
 
 	return &cfg, nil

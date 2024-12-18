@@ -13,8 +13,8 @@ func TestLoad_ConfigPathNotSet(t *testing.T) {
 	os.Unsetenv("PINGATUS_CONFIG_PATH")
 
 	_, err := Load()
-	if err != ErrPathNotSet {
-		t.Fatalf("expected error %v, got %v", ErrPathNotSet, err)
+	if err != errPathNotSet {
+		t.Fatalf("expected error %v, got %v", errPathNotSet, err)
 	}
 }
 
@@ -23,8 +23,8 @@ func TestLoad_FileNotFound(t *testing.T) {
 	defer os.Unsetenv("PINGATUS_CONFIG_PATH")
 
 	_, err := Load()
-	if err == nil || !errors.Is(err, ErrReadingFile) {
-		t.Fatalf("expected %v, got %v", ErrReadingFile, err)
+	if err == nil || !errors.Is(err, errReadingFile) {
+		t.Fatalf("expected %v, got %v", errReadingFile, err)
 	}
 }
 
@@ -43,8 +43,8 @@ func TestLoad_InvalidYAML(t *testing.T) {
 	defer os.Unsetenv("PINGATUS_CONFIG_PATH")
 
 	_, err = Load()
-	if err == nil || !errors.Is(err, ErrParsingFile) {
-		t.Fatalf("expected %v, got %v", ErrParsingFile, err)
+	if err == nil || !errors.Is(err, errParsingFile) {
+		t.Fatalf("expected %v, got %v", errParsingFile, err)
 	}
 }
 
