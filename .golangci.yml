@@ -147,3 +147,9 @@ linters-settings:
     # Default: []
     ignored-numbers:
       - "0o755"
+
+  ireturn:
+    allow:
+      - anon
+      - error
+      - (or|er)$
