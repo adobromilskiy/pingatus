@@ -21,9 +21,6 @@
 go.work
 go.work.sum
 
-pingatus
-dump
-cover.html
-.DS_Store
+bin
 .env
 mycfg.yaml

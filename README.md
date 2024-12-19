@@ -1,7 +1,13 @@
 # PINGATUS
 
+![Static Badge](https://img.shields.io/badge/Go-1.23.4-blue)
 [![build](https://github.com/adobromilskiy/pingatus/actions/workflows/ci.yml/badge.svg)](https://github.com/adobromilskiy/pingatus/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/adobromilskiy/pingatus)](https://goreportcard.com/report/github.com/adobromilskiy/pingatus)
+
+## 🚧 Development in Progress: Version 2.0 🚧
+
+### We are currently working on Version 2.0 of the product. Please note that Version 2.0 will not be backward compatible with Version 1.x.
+
 
 Pingatus is a simple service to monitor your HTTP/ICMP endpoints and notify you when it's down/up.
 
@@ -36,4 +42,24 @@ notifier:
   type: telegram
   tgtoken: <telegram-bot-token>
   tgchatid: <telegram-chat-id>
+```
+
+## Dependencies for `make` (**optional**):
+
+```
+// make sec
+$ go install golang.org/x/vuln/cmd/govulncheck@latest
+$ go install github.com/zricethezav/gitleaks/v8@latest
+
+// make fmt
+$ go install mvdan.cc/gofumpt@latest
+
+// make vet
+$ go install honnef.co/go/tools/cmd/staticcheck@latest
+$ go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
+
+// make lint
+$ go install golang.org/x/tools/cmd/deadcode@latest
+$ curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+| sh -s -- -b $(go env GOPATH)/bin
 ```
