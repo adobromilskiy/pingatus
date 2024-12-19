@@ -1,7 +1,11 @@
 package pinger
 
-import "github.com/adobromilskiy/pingatus/core"
+import (
+	"context"
+
+	"github.com/adobromilskiy/pingatus/core"
+)
 
 type Pinger interface {
-	Ping() (core.Endpoint, error)
+	ping(ctx context.Context) (core.Endpoint, error)
 }
