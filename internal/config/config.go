@@ -19,6 +19,7 @@ type Config struct {
 	DBDSN     string           `yaml:"dbdsn"`
 	Logger    LoggerConfig     `yaml:"logger"`
 	Endpoints []EndpointConfig `yaml:"endpoints,omitempty"`
+	Notifier  NotifierConfig   `yaml:"notifier,omitempty"`
 }
 
 type EndpointConfig struct {
@@ -34,6 +35,12 @@ type EndpointConfig struct {
 type LoggerConfig struct {
 	IsJSON bool   `yaml:"json,omitempty"`
 	Level  string `yaml:"level,omitempty"`
+}
+
+type NotifierConfig struct {
+	Type     string `yaml:"type"`
+	TgToken  string `yaml:"tgtoken,omitempty"`
+	TgChatID string `yaml:"tgchatid,omitempty"`
 }
 
 func Load() (*Config, error) {
