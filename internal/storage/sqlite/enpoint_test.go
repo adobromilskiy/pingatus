@@ -2,9 +2,12 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"testing"
 
 	"github.com/adobromilskiy/pingatus/core"
+
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestNewEndpoint_Success(t *testing.T) {
@@ -79,5 +82,40 @@ func TestEndpoint_Save_Success(t *testing.T) {
 
 	if date != data.Date {
 		t.Errorf("Expected date %d, got %d", data.Date, date)
+	}
+}
+
+func TestEndpoint_Save_Error(t *testing.T) {
+	// Создаем мок для базы данных
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer db.Close()
+
+	mock.ExpectExec("INSERT INTO endpoints").
+		WithArgs("test_name", "test_address", false, 1672531200).
+		WillReturnError(errors.New("mocked database error"))
+
+	e := &Endpoint{
+		db: db,
+	}
+
+	// Данные для теста
+	data := core.Endpoint{
+		Name:    "test_name",
+		Address: "test_address",
+		Status:  false,
+		Date:    1672531200,
+	}
+
+	err = e.Save(data)
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }

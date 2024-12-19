@@ -3,6 +3,7 @@ module github.com/adobromilskiy/pingatus
 go 1.23.4
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.34.2
 )

@@ -3,18 +3,14 @@ package sqlite
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"os"
 	"testing"
+
+	"github.com/adobromilskiy/pingatus/internal/mocks"
 )
 
-// TODO: replace to mock package
-func mockLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(os.Stdout, nil))
-}
-
 func TestNew(t *testing.T) {
-	logger := mockLogger()
+	logger := mocks.MockLogger()
 	dsn := "sqlite://./test.db"
 
 	sqliteDB := New(logger, dsn)
@@ -31,7 +27,7 @@ func TestNew(t *testing.T) {
 
 func TestOpenAndClose_Success(t *testing.T) {
 	ctx := context.Background()
-	logger := mockLogger()
+	logger := mocks.MockLogger()
 
 	tempDB := "./test_open_close.db"
 	defer os.Remove(tempDB)
@@ -51,7 +47,7 @@ func TestOpenAndClose_Success(t *testing.T) {
 
 func TestOpen_Fail(t *testing.T) {
 	ctx := context.Background()
-	logger := mockLogger()
+	logger := mocks.MockLogger()
 
 	sqliteDB := New(logger, "/invalid/path/to/db.sqlite")
 
@@ -67,7 +63,7 @@ func TestOpen_Fail(t *testing.T) {
 
 func TestClose_Fail(t *testing.T) {
 	ctx := context.Background()
-	logger := mockLogger()
+	logger := mocks.MockLogger()
 
 	sqliteDB := &DB{
 		lg: logger,
