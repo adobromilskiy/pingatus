@@ -5,9 +5,16 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/adobromilskiy/pingatus/internal/config"
+	"github.com/adobromilskiy/pingatus/internal/notifier"
+	"github.com/adobromilskiy/pingatus/internal/pinger"
+	"github.com/adobromilskiy/pingatus/internal/storage/sqlite"
 )
 
 func main() {
@@ -20,6 +27,9 @@ func main() {
 }
 
 func run(ctx context.Context) error {
+	ctx, stop := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGINT, os.Kill)
+	defer stop()
+
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("run: %w", err)
@@ -33,9 +43,47 @@ func run(ctx context.Context) error {
 		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
 	}
 
-	lg.Log(ctx, slog.LevelInfo, "application started", "version", "2.0")
+	lg.Log(ctx, slog.LevelInfo, "application started")
 
-	return nil
+	ntfr, err := notifier.New(lg, cfg.Notifier) //nolint:contextcheck
+	if err != nil {
+		return fmt.Errorf("run: %w", err)
+	}
+
+	db := sqlite.New(lg, cfg.DBDSN)
+
+	if err = db.Open(ctx); err != nil {
+		return fmt.Errorf("run: %w", err)
+	}
+
+	defer db.Close(ctx)
+
+	endpoint, err := sqlite.NewEndpoint(db.Get())
+	if err != nil {
+		return fmt.Errorf("run: %w", err)
+	}
+
+	p := pinger.NewPingatus(lg, cfg.Endpoints, endpoint, ntfr)
+
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		<-ctx.Done()
+
+		lg.Log(ctx, slog.LevelInfo,
+			"Received terminated signal",
+		)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		p.Do(ctx)
+
+		return nil
+	})
+
+	return g.Wait()
 }
 
 func parseLogLevel(s string) *slog.LevelVar {

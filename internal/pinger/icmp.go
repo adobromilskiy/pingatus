@@ -28,8 +28,6 @@ func newICMP(cfg config.EndpointConfig) (*icmpPinger, error) {
 		return nil, fmt.Errorf("pinger: %w", err)
 	}
 
-	pinger.Count = cfg.PacketCount
-
 	return &icmpPinger{
 		cfg:    cfg,
 		pinger: pinger,
@@ -42,6 +40,8 @@ func (p *icmpPinger) ping(_ context.Context) (core.Endpoint, error) {
 		Address: p.cfg.Address,
 		Date:    time.Now().Unix(),
 	}
+
+	p.pinger.Count = p.cfg.PacketCount
 
 	if err := p.pinger.Run(); err != nil {
 		return endpoint, err

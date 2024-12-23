@@ -14,6 +14,7 @@ func TestNewTelegram(t *testing.T) {
 	logger := mocks.MockLogger()
 	token := "test-token"
 	chatID := "test-chat-id"
+
 	tg := newTelegram(logger, token, chatID)
 
 	if tg.token != token {

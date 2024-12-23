@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/adobromilskiy/pingatus/core"
 )
@@ -10,7 +10,7 @@ type StorageMock struct{}
 
 func (s *StorageMock) Save(data core.Endpoint) error {
 	if data.Name != "test" {
-		return fmt.Errorf("test: wrong name")
+		return errors.New("test: wrong name") //nolint:goerr113
 	}
 
 	return nil

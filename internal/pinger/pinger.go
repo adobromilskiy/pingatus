@@ -48,6 +48,12 @@ func (p *Pingatus) Do(ctx context.Context) {
 					return
 				}
 
+				p.lg.Log(
+					ctx, slog.LevelInfo, "start pinger",
+					"type", cfg.Type,
+					"endpoint", cfg.Name,
+				)
+
 				p.run(ctx, pinger, cfg)
 			case "icmp":
 				pinger, err := newICMP(cfg)
@@ -61,6 +67,12 @@ func (p *Pingatus) Do(ctx context.Context) {
 
 					return
 				}
+
+				p.lg.Log(
+					ctx, slog.LevelInfo, "start pinger",
+					"type", cfg.Type,
+					"endpoint", cfg.Name,
+				)
 
 				p.run(ctx, pinger, cfg)
 			}
@@ -84,6 +96,8 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 
 			return
 		case <-ticker.C:
+			p.lg.Log(ctx, slog.LevelDebug, "pinging", "endpoint", cfg.Name)
+
 			endpoint, err := pinger.ping(ctx)
 			if err != nil {
 				p.lg.Log(
@@ -111,7 +125,7 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 			err = p.storage.Save(endpoint)
 			if err != nil {
 				p.lg.Log(
-					ctx, slog.LevelError, "got error while saving endpoint",
+					ctx, slog.LevelWarn, "got error while saving endpoint",
 					"type", cfg.Type,
 					"endpoint", cfg.Name,
 					"err", err,

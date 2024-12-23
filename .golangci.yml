@@ -27,7 +27,6 @@ linters:
     - fatcontext
     - forbidigo
     - forcetypeassert
-    - gci
     - ginkgolinter
     - gocheckcompilerdirectives
     - gochecknoglobals
@@ -108,6 +107,7 @@ linters:
     # - depguard
     # - exhaustruct
     # - funlen
+    # - gci
     # - nonamedreturns
     # - tagalign
     # - varnamelen
@@ -132,15 +132,15 @@ run:
   go: "1.23.4"
 
 linters-settings:
-  gci:
-    sections:
-      - standard # Standard section: captures all standard packages.
-      - default # Default section: contains all imports that could not be matched to another section type.
-      - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
-      - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
-      - prefix(github.com/adobromilskiy/crypto-sentinel)
-    skip-generated: false
-    custom-order: true
+  # gci:
+  #   sections:
+  #     - standard # Standard section: captures all standard packages.
+  #     - default # Default section: contains all imports that could not be matched to another section type.
+  #     - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
+  #     - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
+  #     - prefix(github.com/adobromilskiy/pingatus)
+  #   skip-generated: false
+  #   custom-order: true
 
   mnd:
     # Values always ignored: "1", "1.0", "0" and "0.0"
