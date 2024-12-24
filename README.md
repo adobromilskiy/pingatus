@@ -29,8 +29,9 @@ docker run -d \
 Run via binary:
 
 ```sh
+go install github.com/adobromilskiy/pingatus/cmd/pingatus@latest
 export PINGATUS_CONFIG_PATH=/path/to/config.yaml
-./pingatus
+pingatus
 ```
 
 Example of **config.yaml**:
