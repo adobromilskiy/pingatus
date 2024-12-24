@@ -122,7 +122,7 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 				go p.notifier.Send(ctx, "endpoint "+cfg.Name+" is offline")
 			}
 
-			err = p.storage.Save(endpoint)
+			err = p.storage.Save(ctx, endpoint)
 			if err != nil {
 				p.lg.Log(
 					ctx, slog.LevelWarn, "got error while saving endpoint",
