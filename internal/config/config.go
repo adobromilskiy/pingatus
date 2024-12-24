@@ -16,20 +16,11 @@ var (
 )
 
 type Config struct {
-	DBDSN     string           `yaml:"dbdsn"`
-	Logger    LoggerConfig     `yaml:"logger"`
-	Endpoints []EndpointConfig `yaml:"endpoints,omitempty"`
-	Notifier  NotifierConfig   `yaml:"notifier,omitempty"`
-}
-
-type EndpointConfig struct {
-	Name        string        `yaml:"name"`
-	Type        string        `yaml:"type"`
-	Address     string        `yaml:"address"`
-	Status      int           `yaml:"status"`
-	PacketCount int           `yaml:"packetcount"`
-	Timeout     time.Duration `yaml:"timeout"`
-	Interval    time.Duration `yaml:"interval"`
+	DBDSN      string           `yaml:"dbdsn"`
+	ListenAddr string           `yaml:"listenaddr"`
+	Logger     LoggerConfig     `yaml:"logger"`
+	Notifier   NotifierConfig   `yaml:"notifier,omitempty"`
+	Endpoints  []EndpointConfig `yaml:"endpoints,omitempty"`
 }
 
 type LoggerConfig struct {
@@ -41,6 +32,16 @@ type NotifierConfig struct {
 	Type     string `yaml:"type"`
 	TgToken  string `yaml:"tgtoken,omitempty"`
 	TgChatID string `yaml:"tgchatid,omitempty"`
+}
+
+type EndpointConfig struct {
+	Name        string        `yaml:"name"`
+	Type        string        `yaml:"type"`
+	Address     string        `yaml:"address"`
+	Status      int           `yaml:"status"`
+	PacketCount int           `yaml:"packetcount"`
+	Timeout     time.Duration `yaml:"timeout"`
+	Interval    time.Duration `yaml:"interval"`
 }
 
 func Load() (*Config, error) {
