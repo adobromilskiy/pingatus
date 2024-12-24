@@ -18,7 +18,12 @@ Pingatus is a simple service to monitor your HTTP/ICMP endpoints and notify you 
 Run via docker:
 
 ```sh
-docker run -d --name pingatus -p 8080:8080 -v $(pwd)/mycfg.yaml:/config.yaml -e PINGATUS_CONFIG_PATH=/config.yaml ghcr.io/adobromilskiy/pingatus:latest
+docker run -d \
+    --name pingatus \
+    -p 8080:8080 \
+    -v $(pwd)/mycfg.yaml:/config.yaml \
+    -e PINGATUS_CONFIG_PATH=/config.yaml \
+    ghcr.io/adobromilskiy/pingatus:latest
 ```
 
 Run via binary:
