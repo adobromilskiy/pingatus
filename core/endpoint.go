@@ -1,5 +1,7 @@
 package core
 
+import "context"
+
 type Endpoint struct {
 	Name    string `json:"name"`
 	Address string `json:"address"`
@@ -8,5 +10,7 @@ type Endpoint struct {
 }
 
 type Setter interface {
-	Save(e Endpoint) error
+	Save(ctx context.Context, e Endpoint) error
+	GetEndpoints(ctx context.Context) ([]string, error)
+	GetEndpointStats(ctx context.Context, name string, date int64) ([]Endpoint, error)
 }
