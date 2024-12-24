@@ -14,6 +14,7 @@ import (
 	"github.com/adobromilskiy/pingatus/internal/config"
 	"github.com/adobromilskiy/pingatus/internal/notifier"
 	"github.com/adobromilskiy/pingatus/internal/pinger"
+	"github.com/adobromilskiy/pingatus/internal/server"
 	"github.com/adobromilskiy/pingatus/internal/storage/sqlite"
 )
 
@@ -65,6 +66,8 @@ func run(ctx context.Context) error {
 
 	p := pinger.NewPingatus(lg, cfg.Endpoints, endpoint, ntfr)
 
+	s := server.New(lg, endpoint, cfg.ListenAddr)
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
@@ -79,6 +82,12 @@ func run(ctx context.Context) error {
 
 	g.Go(func() error {
 		p.Do(ctx)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		s.Run(ctx)
 
 		return nil
 	})
