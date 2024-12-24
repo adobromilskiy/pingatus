@@ -21,7 +21,9 @@
 go.work
 go.work.sum
 
+.DS_Store
 bin
 .env
 mycfg.yaml
 pingatus.db
+!cover.out
