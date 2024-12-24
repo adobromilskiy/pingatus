@@ -2,27 +2,47 @@
 
 ![Static Badge](https://img.shields.io/badge/Go-1.23.4-blue)
 [![build](https://github.com/adobromilskiy/pingatus/actions/workflows/ci.yml/badge.svg)](https://github.com/adobromilskiy/pingatus/actions/workflows/test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/adobromilskiy/pingatus/badge.svg?branch=main)](https://coveralls.io/github/adobromilskiy/pingatus?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/adobromilskiy/pingatus)](https://goreportcard.com/report/github.com/adobromilskiy/pingatus)
-
-## 🚧 Development in Progress: Version 2.0 🚧
-
-### We are currently working on Version 2.0 of the product. Please note that Version 2.0 will not be backward compatible with Version 1.x.
-
 
 Pingatus is a simple service to monitor your HTTP/ICMP endpoints and notify you when it's down/up.
 
-Setup **config.yaml** via environment variables `PINGATUS_CONFIG_PATH`.
+![Pingatus dashboard](.github/assets/example.png)
+
+## Getting started
+
+- Create a **config.yaml** file.
+- Setup **config.yaml** via environment variables `PINGATUS_CONFIG_PATH`.
+- Run the docker container or build a binary.
+
+Run via docker:
+
+```sh
+docker run -d --name pingatus -p 8080:8080 -v $(pwd)/mycfg.yaml:/config.yaml -e PINGATUS_CONFIG_PATH=/config.yaml ghcr.io/adobromilskiy/pingatus:latest
+```
+
+Run via binary:
+
+```sh
+export PINGATUS_CONFIG_PATH=/path/to/config.yaml
+./pingatus
+```
 
 Example of **config.yaml**:
 
 ```yaml
-mongouri: mongodb://localhost:27017/pingatus?timeoutMS=5000
+dbdsn: sqlite://pingatus.db # you can use sqlite://:memory:
 
-debug: true
+listenaddr: :8080
 
-webapi:
-  listenaddr: :8080
-  assetsdir: ./assets
+logger:
+  json: true # true - json format, false - plain text (default false)
+  level: debug # debug, info, warn, error (default info)
+
+notifier:
+  type: telegram
+  tgtoken: <telegram-bot-token>
+  tgchatid: <telegram-chat-id>
 
 endpoints:
   - name: server1
@@ -37,11 +57,6 @@ endpoints:
     address: 8.8.8.8
     packetcount: 5
     interval: 1m
-
-notifier:
-  type: telegram
-  tgtoken: <telegram-bot-token>
-  tgchatid: <telegram-chat-id>
 ```
 
 ## Dependencies for `make` (**optional**):
