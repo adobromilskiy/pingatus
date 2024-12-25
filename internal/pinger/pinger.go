@@ -3,7 +3,6 @@ package pinger
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -134,8 +133,6 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 
 				continue
 			}
-
-			fmt.Println(endpoint)
 
 			p.mu.Lock()
 			if endpoint.Status && !p.status[cfg.Name] {
