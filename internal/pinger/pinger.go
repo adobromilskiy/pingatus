@@ -3,6 +3,7 @@ package pinger
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -28,10 +29,18 @@ type Pingatus struct {
 	cfg      []config.EndpointConfig
 	storage  core.Setter
 	notifier notifier.Notifier
+	mu       sync.Mutex
+	status   map[string]bool
 }
 
 func NewPingatus(lg *slog.Logger, cfg []config.EndpointConfig, s core.Setter, n notifier.Notifier) *Pingatus {
-	return &Pingatus{lg.With("pkg", "pinger"), cfg, s, n}
+	return &Pingatus{
+		lg:       lg.With("pkg", "pinger"),
+		cfg:      cfg,
+		storage:  s,
+		notifier: n,
+		status:   make(map[string]bool, len(cfg)),
+	}
 }
 
 func (p *Pingatus) Do(ctx context.Context) {
@@ -62,6 +71,10 @@ func (p *Pingatus) Do(ctx context.Context) {
 					"endpoint", cfg.Name,
 				)
 
+				p.mu.Lock()
+				p.status[cfg.Name] = true
+				p.mu.Unlock()
+
 				p.run(ctx, pinger, cfg)
 			case "icmp":
 				pinger, err := newICMP(cfg)
@@ -82,6 +95,10 @@ func (p *Pingatus) Do(ctx context.Context) {
 					"endpoint", cfg.Name,
 				)
 
+				p.mu.Lock()
+				p.status[cfg.Name] = true
+				p.mu.Unlock()
+
 				p.run(ctx, pinger, cfg)
 			}
 		}(e)
@@ -95,8 +112,6 @@ func (p *Pingatus) Do(ctx context.Context) {
 func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointConfig) {
 	ticker := time.NewTicker(cfg.Interval)
 
-	currentStatus := true
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -104,7 +119,9 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 
 			return
 		case <-ticker.C:
-			p.lg.Log(ctx, slog.LevelDebug, "pinging", "endpoint", cfg.Name)
+			p.mu.Lock()
+			p.lg.Log(ctx, slog.LevelDebug, "pinging", "endpoint", cfg.Name, "status", p.status[cfg.Name])
+			p.mu.Unlock()
 
 			endpoint, err := pinger.ping(ctx)
 			if err != nil {
@@ -118,17 +135,21 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 				continue
 			}
 
-			if endpoint.Status && !currentStatus {
-				currentStatus = true
+			fmt.Println(endpoint)
+
+			p.mu.Lock()
+			if endpoint.Status && !p.status[cfg.Name] {
+				p.status[cfg.Name] = true
 
 				go p.notifier.Send(ctx, "endpoint "+cfg.Name+" is online")
 			}
 
-			if !endpoint.Status && currentStatus {
-				currentStatus = false
+			if !endpoint.Status && p.status[cfg.Name] {
+				p.status[cfg.Name] = false
 
 				go p.notifier.Send(ctx, "endpoint "+cfg.Name+" is offline")
 			}
+			p.mu.Unlock()
 
 			err = p.storage.Save(ctx, endpoint)
 			if err != nil {
