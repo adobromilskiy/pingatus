@@ -15,7 +15,6 @@ type Endpoint struct {
 func NewEndpoint(db *sql.DB) (*Endpoint, error) {
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS endpoints (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL,
 			address TEXT NOT NULL,
 			status BOOLEAN NOT NULL,
