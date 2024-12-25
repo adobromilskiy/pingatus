@@ -3,7 +3,6 @@ package mocks
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/adobromilskiy/pingatus/core"
 )
@@ -24,7 +23,7 @@ func (s *StorageMock) GetEndpoints(_ context.Context) ([]string, error) {
 
 func (s *StorageMock) GetEndpointStats(_ context.Context, name string, date int64) ([]core.Endpoint, error) {
 	if name != "test" {
-		return nil, fmt.Errorf("test: wrong name")
+		return nil, errors.New("test: wrong name") //nolint:goerr113
 	}
 
 	return []core.Endpoint{

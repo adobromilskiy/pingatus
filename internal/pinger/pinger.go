@@ -2,6 +2,7 @@ package pinger
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"sync"
 	"time"
@@ -9,6 +10,13 @@ import (
 	"github.com/adobromilskiy/pingatus/core"
 	"github.com/adobromilskiy/pingatus/internal/config"
 	"github.com/adobromilskiy/pingatus/internal/notifier"
+)
+
+var (
+	errStatusNotSet        = errors.New("pinger: status is not set")
+	errTimeoutNotSet       = errors.New("pinger: timeout is not set")
+	errFailedCreateRequest = errors.New("pinger: failed to create request")
+	errPacketCountNotSet   = errors.New("pinger: packetcount is not set")
 )
 
 type pinger interface {

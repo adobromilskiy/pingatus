@@ -2,7 +2,6 @@ package pinger
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 	probing "github.com/prometheus-community/pro-bing"
 )
 
-var errPacketCountNotSet = errors.New("pinger: packetcount is not set")
+const icpmTimeout = 3 * time.Second
 
 type icmpPinger struct {
 	cfg    config.EndpointConfig
@@ -41,7 +40,7 @@ func (p *icmpPinger) ping(ctx context.Context) (core.Endpoint, error) {
 		Date:    time.Now().Unix(),
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, icpmTimeout)
 	defer cancel()
 
 	go func() {

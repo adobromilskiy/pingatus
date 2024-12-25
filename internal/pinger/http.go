@@ -2,19 +2,12 @@ package pinger
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/adobromilskiy/pingatus/core"
 	"github.com/adobromilskiy/pingatus/internal/config"
-)
-
-var (
-	errStatusNotSet        = errors.New("pinger: status is not set")
-	errTimeoutNotSet       = errors.New("pinger: timeout is not set")
-	errFailedCreateRequest = errors.New("pinger: failed to create request")
 )
 
 type httpPinger struct {

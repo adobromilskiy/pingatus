@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"embed"
+	"errors"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/adobromilskiy/pingatus/core"
 )
@@ -24,12 +26,14 @@ func New(lg *slog.Logger, db core.Setter, addr string) *Server {
 
 func (s *Server) Run(ctx context.Context) {
 	srv := &http.Server{
-		Addr:    s.addr,
-		Handler: s.routes(),
+		Addr:              s.addr,
+		Handler:           s.routes(),
+		ReadHeaderTimeout: time.Second,
 	}
 
 	go func() {
 		<-ctx.Done()
+
 		if err := srv.Shutdown(ctx); err != nil {
 			s.lg.Log(ctx, slog.LevelError, "failed to shutdown server", "err", err)
 		}
@@ -39,7 +43,7 @@ func (s *Server) Run(ctx context.Context) {
 
 	s.lg.Log(ctx, slog.LevelInfo, "server started", "addr", s.addr)
 
-	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		s.lg.Log(ctx, slog.LevelError, "failed to listen and serve", "err", err)
 	}
 
@@ -51,5 +55,6 @@ func (s *Server) routes() http.Handler {
 	r.Handle("/", http.FileServer(http.FS(content)))
 	r.HandleFunc("/stats", s.getEndpointStats)
 	r.HandleFunc("/endpoints", s.getEndpoints)
+
 	return r
 }

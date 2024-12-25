@@ -34,11 +34,14 @@ func (s *Stats) Convert(endpoints []core.Endpoint) {
 				s.Hours = append(s.Hours, checkhour)
 				s.Points = append(s.Points, points*100/counts)
 			}
+
 			checkhour = hour
 			points = 0
 			counts = 0
 		}
+
 		counts++
+
 		if endpoint.Status {
 			points++
 		}
@@ -54,17 +57,17 @@ func (s *Stats) Convert(endpoints []core.Endpoint) {
 }
 
 func (d Duration) String() string {
-	hour := d / 60
-	minute := d % 60
+	hour := d / 60   //nolint:mnd
+	minute := d % 60 //nolint:mnd
 
 	var result string
 	result = fmt.Sprintf("%d", hour)
 
-	if hour < 10 {
+	if hour < 10 { //nolint:mnd
 		result = fmt.Sprintf("0%d", hour)
 	}
 
-	if minute < 10 {
+	if minute < 10 { //nolint:mnd
 		result = fmt.Sprintf("%s:0%d", result, minute)
 	} else {
 		result = fmt.Sprintf("%s:%d", result, minute)

@@ -30,7 +30,9 @@ func (s *Server) getEndpointStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ago := time.Now().Unix() - 24*60*60
+	const dayAgo = 24 * 60 * 60
+
+	ago := time.Now().Unix() - dayAgo
 
 	endpoints, err := s.db.GetEndpointStats(r.Context(), name, ago)
 	if err != nil {
@@ -44,6 +46,7 @@ func (s *Server) getEndpointStats(w http.ResponseWriter, r *http.Request) {
 	data.Convert(endpoints)
 
 	var total Duration
+
 	for _, v := range endpoints {
 		if v.Status {
 			total++

@@ -65,6 +65,10 @@ endpoints:
     interval: 1m
 ```
 
+### ICMP Pinger Timeout Behavior
+
+The ICMP pinger expects a response for sent packets within 3 seconds. If no response is received during this period, the packet is considered lost.
+
 ## Dependencies for `make` (**optional**):
 
 ```
