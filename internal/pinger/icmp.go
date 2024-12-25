@@ -34,12 +34,20 @@ func newICMP(cfg config.EndpointConfig) (*icmpPinger, error) {
 	}, nil
 }
 
-func (p *icmpPinger) ping(_ context.Context) (core.Endpoint, error) {
+func (p *icmpPinger) ping(ctx context.Context) (core.Endpoint, error) {
 	endpoint := core.Endpoint{
 		Name:    p.cfg.Name,
 		Address: p.cfg.Address,
 		Date:    time.Now().Unix(),
 	}
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	go func() {
+		<-ctx.Done()
+		p.pinger.Stop()
+	}()
 
 	p.pinger.Count = p.cfg.PacketCount
 
