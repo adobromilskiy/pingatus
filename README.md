@@ -54,20 +54,17 @@ endpoints:
   - name: server1
     type: http
     address: https://yourdomain.com
-    status: 200
-    timeout: 3s
-    interval: 1m
+    status: 200 # expected status code
+    timeout: 3s # timeout for receiving a response
+    interval: 1m # check interval
 
   - name: server2
     type: icmp
     address: 8.8.8.8
-    packetcount: 5
-    interval: 1m
+    packetcount: 5 # number of packets to send
+    timeout: 3s # timeout for receiving a response
+    interval: 1m # check interval
 ```
-
-### ICMP Pinger Timeout Behavior
-
-The ICMP pinger expects a response for sent packets within 3 seconds. If no response is received during this period, the packet is considered lost.
 
 ## Dependencies for `make` (**optional**):
 

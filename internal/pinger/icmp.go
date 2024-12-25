@@ -10,8 +10,6 @@ import (
 	probing "github.com/prometheus-community/pro-bing"
 )
 
-const icpmTimeout = 3 * time.Second
-
 type icmpPinger struct {
 	cfg    config.EndpointConfig
 	pinger *probing.Pinger
@@ -20,6 +18,10 @@ type icmpPinger struct {
 func newICMP(cfg config.EndpointConfig) (*icmpPinger, error) {
 	if cfg.PacketCount == 0 {
 		return nil, errPacketCountNotSet
+	}
+
+	if cfg.Timeout == 0 {
+		return nil, errTimeoutNotSet
 	}
 
 	pinger, err := probing.NewPinger(cfg.Address)
@@ -40,7 +42,7 @@ func (p *icmpPinger) ping(ctx context.Context) (core.Endpoint, error) {
 		Date:    time.Now().Unix(),
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, icpmTimeout)
+	ctx, cancel := context.WithTimeout(ctx, p.cfg.Timeout)
 	defer cancel()
 
 	go func() {

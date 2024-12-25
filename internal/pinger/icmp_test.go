@@ -14,6 +14,7 @@ func TestICMPPing(t *testing.T) {
 		Type:        "icmp",
 		Address:     "8.8.8.8",
 		PacketCount: 1,
+		Timeout:     time.Second,
 		Interval:    1 * time.Second,
 	}
 
@@ -46,6 +47,7 @@ func TestICMPPing_Error(t *testing.T) {
 		Type:        "icmp",
 		Address:     "",
 		PacketCount: 3,
+		Timeout:     time.Second,
 		Interval:    1 * time.Second,
 	}
 
@@ -59,6 +61,20 @@ func TestICMPPing_Error(t *testing.T) {
 		Type:        "icmp",
 		Address:     "",
 		PacketCount: 0,
+		Timeout:     time.Second,
+		Interval:    1 * time.Second,
+	}
+
+	_, err = newICMP(cfg)
+	if err == nil {
+		t.Fatalf("Expected error, got %v", err)
+	}
+
+	cfg = config.EndpointConfig{
+		Name:        "test",
+		Type:        "icmp",
+		Address:     "",
+		PacketCount: 3,
 		Interval:    1 * time.Second,
 	}
 
