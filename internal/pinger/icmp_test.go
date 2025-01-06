@@ -51,7 +51,12 @@ func TestICMPPing_Error(t *testing.T) {
 		Interval:    1 * time.Second,
 	}
 
-	_, err := newICMP(cfg)
+	p, err := newICMP(cfg)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	_, err = p.ping(context.Background())
 	if err == nil {
 		t.Fatalf("Expected error, got %v", err)
 	}

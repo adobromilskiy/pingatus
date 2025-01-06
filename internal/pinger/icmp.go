@@ -11,8 +11,7 @@ import (
 )
 
 type icmpPinger struct {
-	cfg    config.EndpointConfig
-	pinger *probing.Pinger
+	cfg config.EndpointConfig
 }
 
 func newICMP(cfg config.EndpointConfig) (*icmpPinger, error) {
@@ -24,14 +23,8 @@ func newICMP(cfg config.EndpointConfig) (*icmpPinger, error) {
 		return nil, errTimeoutNotSet
 	}
 
-	pinger, err := probing.NewPinger(cfg.Address)
-	if err != nil {
-		return nil, fmt.Errorf("pinger: %w", err)
-	}
-
 	return &icmpPinger{
-		cfg:    cfg,
-		pinger: pinger,
+		cfg: cfg,
 	}, nil
 }
 
@@ -45,18 +38,23 @@ func (p *icmpPinger) ping(ctx context.Context) (core.Endpoint, error) {
 	ctx, cancel := context.WithTimeout(ctx, p.cfg.Timeout)
 	defer cancel()
 
+	pinger, err := probing.NewPinger(p.cfg.Address)
+	if err != nil {
+		return endpoint, fmt.Errorf("pinger: %w", err)
+	}
+
+	pinger.Count = p.cfg.PacketCount
+
 	go func() {
 		<-ctx.Done()
-		p.pinger.Stop()
+		pinger.Stop()
 	}()
 
-	p.pinger.Count = p.cfg.PacketCount
-
-	if err := p.pinger.Run(); err != nil {
+	if err := pinger.Run(); err != nil {
 		return endpoint, err
 	}
 
-	stats := p.pinger.Statistics()
+	stats := pinger.Statistics()
 
 	endpoint.Status = stats.PacketsRecv > 0
 
