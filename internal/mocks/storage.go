@@ -40,3 +40,29 @@ func (s *StorageMock) GetEndpointStats(_ context.Context, name string, date int6
 		},
 	}, nil
 }
+
+func (s *StorageMock) GetLastSuccess(_ context.Context, name string) (*core.Endpoint, error) {
+	if name != "test" {
+		return nil, errors.New("test: wrong name") //nolint:goerr113
+	}
+
+	return &core.Endpoint{
+		Name:    name,
+		Address: "http://localhost",
+		Status:  true,
+		Date:    123,
+	}, nil
+}
+
+func (s *StorageMock) GetLastFailure(_ context.Context, name string) (*core.Endpoint, error) {
+	if name != "test" {
+		return nil, errors.New("test: wrong name") //nolint:goerr113
+	}
+
+	return &core.Endpoint{
+		Name:    name,
+		Address: "http://localhost",
+		Status:  false,
+		Date:    124,
+	}, nil
+}
