@@ -103,3 +103,37 @@ func (e *Endpoint) GetEndpointStats(ctx context.Context, name string, date int64
 
 	return data, nil
 }
+
+func (e *Endpoint) GetLastSuccess(ctx context.Context, name string) (*core.Endpoint, error) {
+	const query = `SELECT name, address, status, date FROM endpoints WHERE name=? AND status=1 ORDER BY date DESC LIMIT 1;`
+
+	row := e.db.QueryRowContext(ctx, query, name)
+
+	var data core.Endpoint
+	if err := row.Scan(&data.Name, &data.Address, &data.Status, &data.Date); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("endpoint: failed to get last success: %w", err)
+	}
+
+	return &data, nil
+}
+
+func (e *Endpoint) GetLastFailure(ctx context.Context, name string) (*core.Endpoint, error) {
+	const query = `SELECT name, address, status, date FROM endpoints WHERE name=? AND status=0 ORDER BY date DESC LIMIT 1;`
+
+	row := e.db.QueryRowContext(ctx, query, name)
+
+	var data core.Endpoint
+	if err := row.Scan(&data.Name, &data.Address, &data.Status, &data.Date); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("endpoint: failed to get last failure: %w", err)
+	}
+
+	return &data, nil
+}
