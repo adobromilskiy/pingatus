@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/adobromilskiy/pingatus/internal/mocks"
 )
 
 func TestNewTelegram(t *testing.T) {
-	logger := mocks.MockLogger()
+	logger := mockLogger()
 	token := "test-token"
 	chatID := "test-chat-id"
 
@@ -33,7 +31,7 @@ func TestNewTelegram(t *testing.T) {
 
 func TestTelegramSend(t *testing.T) {
 	tg := &telegram{
-		lg:     mocks.MockLogger(),
+		lg:     mockLogger(),
 		token:  "mock-token",
 		chatID: "mock-chat-id",
 	}
@@ -66,7 +64,7 @@ func TestTelegramSend(t *testing.T) {
 
 func TestTelegramSend_Error(t *testing.T) {
 	tg := &telegram{
-		lg:     mocks.MockLogger(),
+		lg:     mockLogger(),
 		token:  "mock-token",
 		chatID: "mock-chat-id",
 	}
@@ -83,7 +81,7 @@ func TestTelegramSend_Error(t *testing.T) {
 
 func TestTelegramSend_ErrorPostRequest(t *testing.T) {
 	tg := &telegram{
-		lg:     mocks.MockLogger(),
+		lg:     mockLogger(),
 		token:  "mock-token",
 		chatID: "mock-chat-id",
 	}

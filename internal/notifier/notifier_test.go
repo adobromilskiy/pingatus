@@ -4,11 +4,10 @@ import (
 	"testing"
 
 	"github.com/adobromilskiy/pingatus/internal/config"
-	"github.com/adobromilskiy/pingatus/internal/mocks"
 )
 
 func TestNew_Success(t *testing.T) {
-	logger := mocks.MockLogger()
+	logger := mockLogger()
 
 	cfg := config.NotifierConfig{
 		Type:     "telegram",
@@ -23,7 +22,7 @@ func TestNew_Success(t *testing.T) {
 }
 
 func TestNew_ErrorEmptyToken(t *testing.T) {
-	logger := mocks.MockLogger()
+	logger := mockLogger()
 
 	cfg := config.NotifierConfig{
 		Type:     "telegram",
@@ -38,7 +37,7 @@ func TestNew_ErrorEmptyToken(t *testing.T) {
 }
 
 func TestNew_ErrorEmptyChatID(t *testing.T) {
-	logger := mocks.MockLogger()
+	logger := mockLogger()
 
 	cfg := config.NotifierConfig{
 		Type:    "telegram",
@@ -52,7 +51,7 @@ func TestNew_ErrorEmptyChatID(t *testing.T) {
 }
 
 func TestNew_ErrorUnknownType(t *testing.T) {
-	logger := mocks.MockLogger()
+	logger := mockLogger()
 
 	cfg := config.NotifierConfig{
 		Type: "unknown",
