@@ -1,6 +1,6 @@
 # PINGATUS
 
-![Static Badge](https://img.shields.io/badge/Go-1.23.4-blue)
+![Static Badge](https://img.shields.io/badge/Go-1.25.7-blue)
 [![build](https://github.com/adobromilskiy/pingatus/actions/workflows/ci.yml/badge.svg)](https://github.com/adobromilskiy/pingatus/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/adobromilskiy/pingatus/badge.svg?branch=main)](https://coveralls.io/github/adobromilskiy/pingatus?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/adobromilskiy/pingatus)](https://goreportcard.com/report/github.com/adobromilskiy/pingatus)
