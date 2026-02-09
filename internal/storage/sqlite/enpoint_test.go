@@ -192,16 +192,16 @@ func TestGetEndpointStats(t *testing.T) {
 
 	e := &Endpoint{db: db}
 
-	const query = `SELECT name, address, status, date FROM endpoints WHERE name=\? and date > \? ORDER BY date ASC;`
+	const query = `SELECT name, address, status, date FROM endpoints WHERE name=\? AND date >= \? AND date <= \? ORDER BY date ASC;`
 
 	t.Run("success", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"name", "address", "status", "date"}).
 			AddRow("endpoint1", "192.168.1.1", true, 1660000000).
 			AddRow("endpoint1", "192.168.1.1", false, 1660000100)
 
-		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999)).WillReturnRows(rows)
+		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnRows(rows)
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999)
+		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
 
 		assert.NoError(t, err)
 		expected := []core.Endpoint{
@@ -214,9 +214,9 @@ func TestGetEndpointStats(t *testing.T) {
 	})
 
 	t.Run("query error", func(t *testing.T) {
-		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999)).WillReturnError(fmt.Errorf("query failed"))
+		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnError(fmt.Errorf("query failed"))
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999)
+		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -228,9 +228,9 @@ func TestGetEndpointStats(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"name", "address", "status", "date"}).
 			AddRow("endpoint1", nil, true, 1660000000)
 
-		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999)).WillReturnRows(rows)
+		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnRows(rows)
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999)
+		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -243,9 +243,9 @@ func TestGetEndpointStats(t *testing.T) {
 			AddRow("endpoint1", "192.168.1.1", true, 1660000000).
 			RowError(0, fmt.Errorf("row error"))
 
-		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999)).WillReturnRows(rows)
+		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnRows(rows)
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999)
+		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
 
 		assert.Error(t, err)
 		assert.Nil(t, result)

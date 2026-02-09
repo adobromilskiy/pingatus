@@ -74,10 +74,17 @@ func (e *Endpoint) GetEndpoints(ctx context.Context) ([]string, error) {
 	return names, nil
 }
 
-func (e *Endpoint) GetEndpointStats(ctx context.Context, name string, date int64) ([]core.Endpoint, error) {
-	const query = `SELECT name, address, status, date FROM endpoints WHERE name=? and date > ? ORDER BY date ASC;`
+func (e *Endpoint) GetEndpointStats(ctx context.Context, name string, from int64, to int64) ([]core.Endpoint, error) {
+	const query = `
+		SELECT name, address, status, date
+		FROM endpoints
+		WHERE name=?
+			AND date >= ?
+			AND date <= ?
+		ORDER BY date ASC;
+	`
 
-	rows, err := e.db.QueryContext(ctx, query, name, date)
+	rows, err := e.db.QueryContext(ctx, query, name, from, to)
 	if err != nil {
 		return nil, fmt.Errorf("endpoint: failed to get endpoints stats: %w", err)
 	}
@@ -102,38 +109,4 @@ func (e *Endpoint) GetEndpointStats(ctx context.Context, name string, date int64
 	}
 
 	return data, nil
-}
-
-func (e *Endpoint) GetLastSuccess(ctx context.Context, name string) (*core.Endpoint, error) {
-	const query = `SELECT name, address, status, date FROM endpoints WHERE name=? AND status=1 ORDER BY date DESC LIMIT 1;`
-
-	row := e.db.QueryRowContext(ctx, query, name)
-
-	var data core.Endpoint
-	if err := row.Scan(&data.Name, &data.Address, &data.Status, &data.Date); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-
-		return nil, fmt.Errorf("endpoint: failed to get last success: %w", err)
-	}
-
-	return &data, nil
-}
-
-func (e *Endpoint) GetLastFailure(ctx context.Context, name string) (*core.Endpoint, error) {
-	const query = `SELECT name, address, status, date FROM endpoints WHERE name=? AND status=0 ORDER BY date DESC LIMIT 1;`
-
-	row := e.db.QueryRowContext(ctx, query, name)
-
-	var data core.Endpoint
-	if err := row.Scan(&data.Name, &data.Address, &data.Status, &data.Date); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-
-		return nil, fmt.Errorf("endpoint: failed to get last failure: %w", err)
-	}
-
-	return &data, nil
 }

@@ -9,9 +9,13 @@ import (
 
 type StorageMock struct{}
 
+const testName = "test"
+
+var errWrongName = errors.New("test: wrong name")
+
 func (s *StorageMock) Save(_ context.Context, data core.Endpoint) error {
-	if data.Name != "test" {
-		return errors.New("test: wrong name") //nolint:goerr113
+	if data.Name != testName {
+		return errWrongName
 	}
 
 	return nil
@@ -21,9 +25,9 @@ func (s *StorageMock) GetEndpoints(_ context.Context) ([]string, error) {
 	return []string{"test1", "test2"}, nil
 }
 
-func (s *StorageMock) GetEndpointStats(_ context.Context, name string, date int64) ([]core.Endpoint, error) {
-	if name != "test" {
-		return nil, errors.New("test: wrong name") //nolint:goerr113
+func (s *StorageMock) GetEndpointStats(_ context.Context, name string, from int64, to int64) ([]core.Endpoint, error) {
+	if name != testName {
+		return nil, errWrongName
 	}
 
 	return []core.Endpoint{
@@ -31,38 +35,12 @@ func (s *StorageMock) GetEndpointStats(_ context.Context, name string, date int6
 			Name:    name,
 			Address: "http://localhost",
 			Status:  true,
-			Date:    date,
+			Date:    from,
 		}, {
 			Name:    name,
 			Address: "http://localhost",
 			Status:  true,
-			Date:    date,
+			Date:    to,
 		},
-	}, nil
-}
-
-func (s *StorageMock) GetLastSuccess(_ context.Context, name string) (*core.Endpoint, error) {
-	if name != "test" {
-		return nil, errors.New("test: wrong name") //nolint:goerr113
-	}
-
-	return &core.Endpoint{
-		Name:    name,
-		Address: "http://localhost",
-		Status:  true,
-		Date:    123,
-	}, nil
-}
-
-func (s *StorageMock) GetLastFailure(_ context.Context, name string) (*core.Endpoint, error) {
-	if name != "test" {
-		return nil, errors.New("test: wrong name") //nolint:goerr113
-	}
-
-	return &core.Endpoint{
-		Name:    name,
-		Address: "http://localhost",
-		Status:  false,
-		Date:    124,
 	}, nil
 }

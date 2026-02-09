@@ -2,10 +2,18 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
+)
+
+var (
+	errStatsRangeMissing = errors.New("from and to are required")
+	errStatsFromInvalid  = errors.New("from is invalid")
+	errStatsToInvalid    = errors.New("to is invalid")
+	errStatsRangeInvalid = errors.New("from must be <= to")
 )
 
 func (s *Server) getEndpoints(w http.ResponseWriter, r *http.Request) {
@@ -30,11 +38,14 @@ func (s *Server) getEndpointStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const dayAgo = 24 * 60 * 60
+	from, to, err := parseStatsRange(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 
-	ago := time.Now().Unix() - dayAgo
+		return
+	}
 
-	endpoints, err := s.db.GetEndpointStats(r.Context(), name, ago)
+	endpoints, err := s.db.GetEndpointStats(r.Context(), name, from, to)
 	if err != nil {
 		s.lg.Log(r.Context(), slog.LevelError, "failed to get endpoint stats", "err", err)
 		http.Error(w, "failed to get endpoints", http.StatusInternalServerError)
@@ -66,6 +77,40 @@ func (s *Server) getEndpointStats(w http.ResponseWriter, r *http.Request) {
 		s.lg.Log(r.Context(), slog.LevelError, "failed to write json", "err", err)
 		http.Error(w, "failed to write json", http.StatusInternalServerError)
 	}
+}
+
+func parseStatsRange(r *http.Request) (int64, int64, error) {
+	fromRaw := r.URL.Query().Get("from")
+	toRaw := r.URL.Query().Get("to")
+
+	if fromRaw == "" && toRaw == "" {
+		const daySeconds = 24 * 60 * 60
+
+		to := time.Now().Unix()
+		from := to - daySeconds
+
+		return from, to, nil
+	}
+
+	if fromRaw == "" || toRaw == "" {
+		return 0, 0, errStatsRangeMissing
+	}
+
+	from, err := strconv.ParseInt(fromRaw, 10, 64)
+	if err != nil {
+		return 0, 0, errStatsFromInvalid
+	}
+
+	to, err := strconv.ParseInt(toRaw, 10, 64)
+	if err != nil {
+		return 0, 0, errStatsToInvalid
+	}
+
+	if from > to {
+		return 0, 0, errStatsRangeInvalid
+	}
+
+	return from, to, nil
 }
 
 func WriteJSON(w http.ResponseWriter, data any) error {

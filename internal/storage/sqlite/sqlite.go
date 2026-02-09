@@ -32,8 +32,16 @@ func New(lg *slog.Logger, dsn string) *DB {
 func (s *DB) Open(ctx context.Context) error {
 	s.db, _ = sql.Open("sqlite", s.dsn)
 
-	err := s.db.Ping()
+	err := s.db.PingContext(ctx)
 	if err != nil {
+		return fmt.Errorf("%w: %w", errOpenDB, err)
+	}
+
+	if _, err := s.db.ExecContext(ctx, "PRAGMA journal_mode=WAL;"); err != nil {
+		return fmt.Errorf("%w: %w", errOpenDB, err)
+	}
+
+	if _, err := s.db.ExecContext(ctx, "PRAGMA busy_timeout=5000;"); err != nil {
 		return fmt.Errorf("%w: %w", errOpenDB, err)
 	}
 
