@@ -16,11 +16,11 @@ var content embed.FS
 
 type Server struct {
 	lg   *slog.Logger
-	db   core.Setter
+	db   core.EndpointReader
 	addr string
 }
 
-func New(lg *slog.Logger, db core.Setter, addr string) *Server {
+func New(lg *slog.Logger, db core.EndpointReader, addr string) *Server {
 	return &Server{lg.With("pkg", "server"), db, addr}
 }
 

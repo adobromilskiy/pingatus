@@ -26,13 +26,13 @@ type pinger interface {
 type Pingatus struct {
 	lg       *slog.Logger
 	cfg      []config.EndpointConfig
-	storage  core.Setter
+	storage  core.EndpointWriter
 	notifier notifier.Notifier
 	mu       sync.Mutex
 	status   map[string]bool
 }
 
-func NewPingatus(lg *slog.Logger, cfg []config.EndpointConfig, s core.Setter, n notifier.Notifier) *Pingatus {
+func NewPingatus(lg *slog.Logger, cfg []config.EndpointConfig, s core.EndpointWriter, n notifier.Notifier) *Pingatus {
 	return &Pingatus{
 		lg:       lg.With("pkg", "pinger"),
 		cfg:      cfg,
