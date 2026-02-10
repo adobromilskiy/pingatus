@@ -27,3 +27,8 @@ bin
 mycfg.yaml
 pingatus.db
 !cover.out
+
+.gopath/
+.gocache/
+.staticcheck/
+.golangci/
