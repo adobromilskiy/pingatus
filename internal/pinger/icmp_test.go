@@ -1,7 +1,6 @@
 package pinger
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -23,7 +22,7 @@ func TestICMPPing(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	endpoint, err := p.ping(context.Background())
+	endpoint, err := p.ping(t.Context())
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -56,7 +55,7 @@ func TestICMPPing_Error(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	_, err = p.ping(context.Background())
+	_, err = p.ping(t.Context())
 	if err == nil {
 		t.Fatalf("Expected error, got %v", err)
 	}

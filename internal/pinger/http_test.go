@@ -1,7 +1,6 @@
 package pinger
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,7 +28,7 @@ func TestHTTPPing(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	endpoint, err := pinger.ping(ctx)
 	if err != nil {
@@ -85,7 +84,7 @@ func TestHTTPPing_Error(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	_, err = pinger.ping(context.Background())
+	_, err = pinger.ping(t.Context())
 	if err == nil {
 		t.Fatalf("Expected error")
 	}

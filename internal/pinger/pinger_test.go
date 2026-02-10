@@ -40,7 +40,7 @@ func TestPingerDo(t *testing.T) {
 
 	pinger := NewPingatus(lg, cfg, storage, notifier)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	go func() {
 		time.Sleep(500 * time.Millisecond)
@@ -78,7 +78,7 @@ func TestPingerDo_errors(t *testing.T) {
 
 	pinger := NewPingatus(lg, cfg, storage, notifier)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
@@ -105,7 +105,7 @@ func TestPingerDo_invalidIP(t *testing.T) {
 
 	pinger := NewPingatus(lg, cfg, storage, notifier)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
