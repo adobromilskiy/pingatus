@@ -1,10 +1,7 @@
 package mocks
 
-import (
-	"io"
-	"log/slog"
-)
+import "log/slog"
 
 func MockLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return slog.New(slog.DiscardHandler)
 }
