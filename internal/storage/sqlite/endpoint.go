@@ -12,8 +12,8 @@ type Endpoint struct {
 	db *sql.DB
 }
 
-func NewEndpoint(db *sql.DB) (*Endpoint, error) {
-	_, err := db.Exec(`
+func NewEndpoint(ctx context.Context, db *sql.DB) (*Endpoint, error) {
+	_, err := db.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS endpoints (
 			name TEXT NOT NULL,
 			address TEXT NOT NULL,

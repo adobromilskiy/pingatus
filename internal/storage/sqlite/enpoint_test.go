@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -20,7 +19,9 @@ func TestNewEndpoint_Success(t *testing.T) {
 	}
 	defer db.Close()
 
-	_, err = NewEndpoint(db)
+	ctx := t.Context()
+
+	_, err = NewEndpoint(ctx, db)
 	if err != nil {
 		t.Fatalf("NewEndpoint() failed: %v", err)
 	}
@@ -42,7 +43,9 @@ func TestEndpoint_Save_Success(t *testing.T) {
 	}
 	defer db.Close()
 
-	endpoint, err := NewEndpoint(db)
+	ctx := t.Context()
+
+	endpoint, err := NewEndpoint(ctx, db)
 	if err != nil {
 		t.Fatalf("NewEndpoint() failed: %v", err)
 	}
@@ -54,7 +57,7 @@ func TestEndpoint_Save_Success(t *testing.T) {
 		Date:    1672531200,
 	}
 
-	err = endpoint.Save(context.TODO(), data)
+	err = endpoint.Save(t.Context(), data)
 	if err != nil {
 		t.Fatalf("Save() failed: %v", err)
 	}
@@ -109,7 +112,7 @@ func TestEndpoint_Save_Error(t *testing.T) {
 		Date:    1672531200,
 	}
 
-	err = e.Save(context.TODO(), data)
+	err = e.Save(t.Context(), data)
 	if err == nil {
 		t.Fatal("Expected error, got nil")
 	}
@@ -135,7 +138,7 @@ func TestGetEndpoints(t *testing.T) {
 			AddRow("endpoint2")
 		mock.ExpectQuery(`SELECT DISTINCT name FROM endpoints;`).WillReturnRows(rows)
 
-		result, err := e.GetEndpoints(context.Background())
+		result, err := e.GetEndpoints(t.Context())
 
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"endpoint1", "endpoint2"}, result)
@@ -146,7 +149,7 @@ func TestGetEndpoints(t *testing.T) {
 	t.Run("query error", func(t *testing.T) {
 		mock.ExpectQuery(`SELECT DISTINCT name FROM endpoints;`).WillReturnError(sql.ErrConnDone)
 
-		result, err := e.GetEndpoints(context.Background())
+		result, err := e.GetEndpoints(t.Context())
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -160,7 +163,7 @@ func TestGetEndpoints(t *testing.T) {
 			AddRow(nil)
 		mock.ExpectQuery(`SELECT DISTINCT name FROM endpoints;`).WillReturnRows(rows)
 
-		result, err := e.GetEndpoints(context.Background())
+		result, err := e.GetEndpoints(t.Context())
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -174,7 +177,7 @@ func TestGetEndpoints(t *testing.T) {
 			RowError(0, sql.ErrNoRows)
 		mock.ExpectQuery(`SELECT DISTINCT name FROM endpoints;`).WillReturnRows(rows)
 
-		result, err := e.GetEndpoints(context.Background())
+		result, err := e.GetEndpoints(t.Context())
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -201,7 +204,7 @@ func TestGetEndpointStats(t *testing.T) {
 
 		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnRows(rows)
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
+		result, err := e.GetEndpointStats(t.Context(), "endpoint1", 1659999999, 1660000200)
 
 		assert.NoError(t, err)
 		expected := []core.Endpoint{
@@ -216,7 +219,7 @@ func TestGetEndpointStats(t *testing.T) {
 	t.Run("query error", func(t *testing.T) {
 		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnError(fmt.Errorf("query failed"))
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
+		result, err := e.GetEndpointStats(t.Context(), "endpoint1", 1659999999, 1660000200)
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -230,7 +233,7 @@ func TestGetEndpointStats(t *testing.T) {
 
 		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnRows(rows)
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
+		result, err := e.GetEndpointStats(t.Context(), "endpoint1", 1659999999, 1660000200)
 
 		assert.Error(t, err)
 		assert.Nil(t, result)
@@ -245,7 +248,7 @@ func TestGetEndpointStats(t *testing.T) {
 
 		mock.ExpectQuery(query).WithArgs("endpoint1", int64(1659999999), int64(1660000200)).WillReturnRows(rows)
 
-		result, err := e.GetEndpointStats(context.Background(), "endpoint1", 1659999999, 1660000200)
+		result, err := e.GetEndpointStats(t.Context(), "endpoint1", 1659999999, 1660000200)
 
 		assert.Error(t, err)
 		assert.Nil(t, result)

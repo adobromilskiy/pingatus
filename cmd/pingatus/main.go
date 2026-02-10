@@ -59,7 +59,7 @@ func run(ctx context.Context) error {
 
 	defer db.Close(ctx)
 
-	endpoint, err := sqlite.NewEndpoint(db.Get())
+	endpoint, err := sqlite.NewEndpoint(ctx, db.Get())
 	if err != nil {
 		return fmt.Errorf("run: %w", err)
 	}

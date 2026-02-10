@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"context"
 	"errors"
 	"os"
 	"testing"
@@ -26,7 +25,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestOpenAndClose_Success(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	logger := mocks.MockLogger()
 
 	tempDB := "./test_open_close.db"
@@ -46,7 +45,7 @@ func TestOpenAndClose_Success(t *testing.T) {
 }
 
 func TestOpen_Fail(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	logger := mocks.MockLogger()
 
 	sqliteDB := New(logger, "/invalid/path/to/db.sqlite")
@@ -62,7 +61,7 @@ func TestOpen_Fail(t *testing.T) {
 }
 
 func TestClose_Fail(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	logger := mocks.MockLogger()
 
 	sqliteDB := &DB{
