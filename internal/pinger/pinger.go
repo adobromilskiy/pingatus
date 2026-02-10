@@ -135,6 +135,7 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 			}
 
 			p.mu.Lock()
+
 			if endpoint.Status && !p.status[cfg.Name] {
 				p.status[cfg.Name] = true
 
@@ -146,6 +147,7 @@ func (p *Pingatus) run(ctx context.Context, pinger pinger, cfg config.EndpointCo
 
 				go p.notifier.Send(ctx, "endpoint "+cfg.Name+" is offline")
 			}
+
 			p.mu.Unlock()
 
 			err = p.storage.Save(ctx, endpoint)
