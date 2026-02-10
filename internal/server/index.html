@@ -7,6 +7,17 @@
 <body id="app">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script>
+		function toLocalHourLabels(hours) {
+			const offsetMinutes = new Date().getTimezoneOffset();
+
+			return hours.map((hour) => {
+				const localMinutes = (hour * 60 - offsetMinutes + 1440) % 1440;
+				const localHour = String(Math.floor(localMinutes / 60)).padStart(2, '0');
+
+				return localHour;
+			});
+		}
+
 		async function renderData() {
 			const response = await fetch('/endpoints');
 			const names = await response.json();
@@ -27,7 +38,7 @@
 				const response = await fetch(`/stats?name=${name}`);
 				const data = await response.json();
 
-				var labels = data.stats.hours;
+				var labels = toLocalHourLabels(data.stats.hours);
 				var chartdata = data.stats.points;
 				var backgroundColor = [];
 				var borderColor = [];
