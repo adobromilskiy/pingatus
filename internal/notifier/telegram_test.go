@@ -1,7 +1,6 @@
 package notifier
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -61,7 +60,7 @@ func TestTelegramSend(t *testing.T) {
 
 	tg.apiURL = server.URL + "/botmock-token"
 
-	tg.Send(context.Background(), "test message")
+	tg.Send(t.Context(), "test message")
 }
 
 func TestTelegramSend_Error(t *testing.T) {
@@ -78,7 +77,7 @@ func TestTelegramSend_Error(t *testing.T) {
 
 	tg.apiURL = server.URL + "/botmock-token"
 
-	tg.Send(context.Background(), "test message")
+	tg.Send(t.Context(), "test message")
 }
 
 func TestTelegramSend_ErrorPostRequest(t *testing.T) {
@@ -88,5 +87,5 @@ func TestTelegramSend_ErrorPostRequest(t *testing.T) {
 		chatID: "mock-chat-id",
 	}
 
-	tg.Send(context.Background(), "test message")
+	tg.Send(t.Context(), "test message")
 }
