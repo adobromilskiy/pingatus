@@ -55,6 +55,7 @@ func (s *Server) routes() http.Handler {
 	r.Handle("/", http.FileServer(http.FS(content)))
 	r.HandleFunc("/stats", s.getEndpointStats)
 	r.HandleFunc("/endpoints", s.getEndpoints)
+	r.HandleFunc("/endpoint", s.getEndpointByName)
 
 	return r
 }

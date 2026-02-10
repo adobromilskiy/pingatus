@@ -14,7 +14,7 @@ func TestServer_Run(t *testing.T) {
 	store := &mocks.StorageMock{}
 	server := New(logger, store, ":8081")
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	go server.Run(ctx)
 
 	// Give the server some time to start

@@ -61,6 +61,7 @@ func (d Duration) String() string {
 	minute := d % 60 //nolint:mnd
 
 	var result string
+
 	result = fmt.Sprintf("%d", hour)
 
 	if hour < 10 { //nolint:mnd

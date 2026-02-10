@@ -79,6 +79,36 @@ func (s *Server) getEndpointStats(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) getEndpointByName(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if len(name) == 0 {
+		http.Error(w, "name is required", http.StatusBadRequest)
+
+		return
+	}
+
+	from, to, err := parseRequiredStatsRange(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	endpoints, err := s.db.GetEndpointStats(r.Context(), name, from, to)
+	if err != nil {
+		s.lg.Log(r.Context(), slog.LevelError, "failed to get endpoint stats", "err", err)
+		http.Error(w, "failed to get endpoints", http.StatusInternalServerError)
+
+		return
+	}
+
+	err = WriteJSON(w, endpoints)
+	if err != nil {
+		s.lg.Log(r.Context(), slog.LevelError, "failed to write json", "err", err)
+		http.Error(w, "failed to write json", http.StatusInternalServerError)
+	}
+}
+
 func parseStatsRange(r *http.Request) (int64, int64, error) {
 	fromRaw := r.URL.Query().Get("from")
 	toRaw := r.URL.Query().Get("to")
@@ -91,6 +121,31 @@ func parseStatsRange(r *http.Request) (int64, int64, error) {
 
 		return from, to, nil
 	}
+
+	if fromRaw == "" || toRaw == "" {
+		return 0, 0, errStatsRangeMissing
+	}
+
+	from, err := strconv.ParseInt(fromRaw, 10, 64)
+	if err != nil {
+		return 0, 0, errStatsFromInvalid
+	}
+
+	to, err := strconv.ParseInt(toRaw, 10, 64)
+	if err != nil {
+		return 0, 0, errStatsToInvalid
+	}
+
+	if from > to {
+		return 0, 0, errStatsRangeInvalid
+	}
+
+	return from, to, nil
+}
+
+func parseRequiredStatsRange(r *http.Request) (int64, int64, error) {
+	fromRaw := r.URL.Query().Get("from")
+	toRaw := r.URL.Query().Get("to")
 
 	if fromRaw == "" || toRaw == "" {
 		return 0, 0, errStatsRangeMissing
