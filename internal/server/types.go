@@ -28,7 +28,7 @@ func (s *Stats) Convert(endpoints []core.Endpoint) {
 	checkhour := -1
 
 	for _, endpoint := range endpoints {
-		hour := time.Unix(endpoint.Date, 0).Hour()
+		hour := time.Unix(endpoint.Date, 0).UTC().Hour()
 		if checkhour != hour {
 			if checkhour != -1 {
 				s.Hours = append(s.Hours, checkhour)
