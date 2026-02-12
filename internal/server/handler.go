@@ -126,12 +126,12 @@ func parseStatsRange(r *http.Request) (int64, int64, error) {
 		return 0, 0, errStatsRangeMissing
 	}
 
-	from, err := strconv.ParseInt(fromRaw, 10, 64)
+	from, err := parseTimeParam(fromRaw)
 	if err != nil {
 		return 0, 0, errStatsFromInvalid
 	}
 
-	to, err := strconv.ParseInt(toRaw, 10, 64)
+	to, err := parseTimeParam(toRaw)
 	if err != nil {
 		return 0, 0, errStatsToInvalid
 	}
@@ -151,12 +151,12 @@ func parseRequiredStatsRange(r *http.Request) (int64, int64, error) {
 		return 0, 0, errStatsRangeMissing
 	}
 
-	from, err := strconv.ParseInt(fromRaw, 10, 64)
+	from, err := parseTimeParam(fromRaw)
 	if err != nil {
 		return 0, 0, errStatsFromInvalid
 	}
 
-	to, err := strconv.ParseInt(toRaw, 10, 64)
+	to, err := parseTimeParam(toRaw)
 	if err != nil {
 		return 0, 0, errStatsToInvalid
 	}
@@ -166,6 +166,15 @@ func parseRequiredStatsRange(r *http.Request) (int64, int64, error) {
 	}
 
 	return from, to, nil
+}
+
+func parseTimeParam(raw string) (int64, error) {
+	parsed, err := time.Parse(time.RFC3339, raw)
+	if err != nil {
+		return 0, err
+	}
+
+	return parsed.UTC().Unix(), nil
 }
 
 func WriteJSON(w http.ResponseWriter, data any) error {
