@@ -19,7 +19,8 @@ func NewEndpoint(ctx context.Context, db *sql.DB) (*Endpoint, error) {
 			address TEXT NOT NULL,
 			status BOOLEAN NOT NULL,
 			date INTEGER NOT NULL
-		);`)
+		);
+		CREATE INDEX IF NOT EXISTS idx_endpoints_name_date ON endpoints (name, date);`)
 	if err != nil {
 		return nil, fmt.Errorf("endpoint: can not create table: %w", err)
 	}
